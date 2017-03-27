@@ -40,7 +40,8 @@ void CallBackRenderScene(void)
    
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+   glPushMatrix();
+   glPopMatrix();
 
    //TRIANGLES 
    glBegin(GL_TRIANGLES); 
@@ -228,22 +229,24 @@ void CallBackRenderScene(void)
    glVertex3f(-1.5f,  3.0f,  1.5f);
    
    glEnd();
-/*
-  // glPopMatrix(); 
-  // glPushMatrix();
 
-   //glTranslatef(0.0f,3.1f,0.0f);
-   //glRotatef(Y_Rot,0.0f,0.0f,1.0f);
-   //glTranslatef(0.0f,-3.0f,0.0f);
+   glPopMatrix(); 
+   glPushMatrix();
+
+   glTranslatef(0.0f,-6.0f,0.0f);
+   glRotatef(Y_Rot,0.0f,1.0f,0.0f);
+   glTranslatef(0.0f,-6.0f,0.0f);
+
    glColor3f(0.9,0.0,0.9);
    GLUquadric *quadric;
    quadric = gluNewQuadric();
-   //glPopMatrix();
-   //glPushMatrix();
-   //glTranslatef(0,6,0);
-   //glRotatef(Y_Rot,0.0f,0.0f,1.0f);
-   gluCylinder(quadric,1,1,11.5,100,30);
-   */
+   glPopMatrix();
+   glPushMatrix();
+   glTranslatef(0,6,0);
+   glRotatef(90,1.0f,0.0f,0.0f);
+   glTranslatef(0,0,0); 
+   gluCylinder(quadric,0.5,0.5,1.0,30,30);
+   
 
    
    glLoadIdentity();
@@ -304,8 +307,8 @@ void MyInit(int Width, int Height)
 void mouseClick(int button, int state, int x, int y)
 {
  if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) 
-   gluLookAt(0,4, -10,0,4,0,0,1,0);
-     //gluLookAt(5, 5, 5 - Z_Off,0,0, -Z_Off, 0, 1, 0);
+   //gluLookAt(0,4, -10,0,4,0,0,1,0);
+     gluLookAt(5, 5, 5 ,0,0, 0, 0, 1, 0);
   
   if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP) 
      CallBackResizeScene(Window_Width, Window_Height);
