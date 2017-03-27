@@ -312,6 +312,13 @@ void mouseClick(int button, int state, int x, int y)
   
   if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP) 
      CallBackResizeScene(Window_Width, Window_Height);
+
+  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) 
+      gluLookAt(0,4, -10,0,4,0,0,1,0);
+     //gluLookAt(5, 5, 5 ,0,0, 0, 0, 1, 0);
+  
+  if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) 
+     CallBackResizeScene(Window_Width, Window_Height);
 }
 
 
