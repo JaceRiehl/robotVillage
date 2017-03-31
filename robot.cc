@@ -3,7 +3,8 @@
 #include <stdlib.h> 
 #include <stdio.h>    
 #include <string.h>  
-
+#include <unistd.h> 
+#include <math.h>
 #include <GL/gl.h>  
 #include <GL/glu.h> 
 #include <GL/glut.h> 
@@ -17,29 +18,33 @@ int Window_Height = 600;
 
 // The cubes rotation 
 float Y_Rot   = 0.0f;  
-float Y_Speed = 0.5f;
+float Y_Speed = -30.0f;
 float Head_Rot = 0; 
 float Head_Speed = 0;
 //Z value
 float Z_Off = 0.0f;
+//const float PI = 3.14159;
 
-
-
-
-void CallBackRenderScene(void)
-{
-// char buf[80]; // For our strings.
-   glViewport(0,0,800,600);
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
-  
-   //Rotate object and translate it used for when the cube is pushed
-   //glTranslatef(0.0f,0.0f,-2.0f);
-   //glRotatef(Pyr_Rot,0.0f,0.0f,1.0f);
-   //glTranslatef(0.0f,0.0f,2.0f);
+void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
+   int i;
+   int triangleAmount = 20; //# of triangles used to draw circle
    
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   //GLfloat radius = 0.8f; //radius
+   GLfloat twicePi = 2.0f * M_PI;
+   
+   glBegin(GL_TRIANGLE_FAN);
+      glVertex2f(x, y); // center of circle
+      for(i = 0; i <= triangleAmount;i++) { 
+         glVertex2f(
+                  x + (radius * cos(i *  twicePi / triangleAmount)), 
+             y + (radius * sin(i * twicePi / triangleAmount))
+         );
+      }
+   glEnd();
+}
 
+void buildRobot()
+{
    glPushMatrix();
    glPopMatrix();
 
@@ -67,11 +72,6 @@ void CallBackRenderScene(void)
 
       glBegin(GL_QUADS); 
 
-   //Rotate object and translate it used for when the cube is pushed
-   //usleep(100000); 
-   
-   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   //glBegin(GL_QUADS); 
 
    //Far face.
    glNormal3f(0.0f, 0.0f,-1.0f);
@@ -160,18 +160,9 @@ void CallBackRenderScene(void)
    glPushMatrix();
 
    //CUBE
-   //glTranslatef(0.0f,0.0f,0.0f);
-   //glRotatef(Y_Rot,0.0f,0.0f,1.0f);
-   //glTranslatef(0.0f,0.0f,0.0f);
    
-  
    glBegin(GL_QUADS); 
 
-   //Rotate object and translate it used for when the cube is pushed
-   //usleep(100000); 
-   
-   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   //glBegin(GL_QUADS); 
 
    //Far face.
    glNormal3f(0.0f, 0.0f,-1.0f);
@@ -230,25 +221,92 @@ void CallBackRenderScene(void)
    
    glEnd();
 
+//CYLINDER
    glPopMatrix(); 
    glPushMatrix();
+   usleep(10000);
+   glTranslatef(0.0f,5.5f,0.0f);
+   glRotatef(Y_Rot,0.0f,1.0f,0.0f);
+   glTranslatef(0.0f,-5.5f,0.0f);
 
-   glTranslatef(0.0f,-6.0f,0.0f);
+   glTranslatef(0,5.5,0);
+   glRotatef(90,1.0f,0.0f,0.0f);
+   //glTranslatef(0,0,0); 
+   glColor3f(0.9,0.9,0.0);
+   GLUquadric *quadric;
+   quadric = gluNewQuadric();
+
+   gluCylinder(quadric,0.25,0.25,0.5,90,60);
+   
+   glPopMatrix();
+   glPushMatrix();
+
+   usleep(10000);
+   glTranslatef(0.0f,6.0f,0.0f);
    glRotatef(Y_Rot,0.0f,1.0f,0.0f);
    glTranslatef(0.0f,-6.0f,0.0f);
 
-   glColor3f(0.9,0.0,0.9);
-   GLUquadric *quadric;
-   quadric = gluNewQuadric();
-   glPopMatrix();
-   glPushMatrix();
-   glTranslatef(0,6,0);
+   glTranslatef(0,6.0,0);
    glRotatef(90,1.0f,0.0f,0.0f);
-   glTranslatef(0,0,0); 
-   gluCylinder(quadric,0.5,0.5,1.0,30,30);
+
+   glColor3f(0.6,0.0,0.6);
+  
+   quadric = gluNewQuadric();
+
+   gluCylinder(quadric,0.25,0.25,0.5,90,60);
    
 
+
+   glPopMatrix();
+   glPushMatrix();
+
+   glTranslatef(0,3.5,0);
+   glRotatef(90,1.0f,0.0f,0.0f);
    
+   glColor3f(0.6,0.0,0.6);
+   //GLUquadric *quadric;
+   quadric = gluNewQuadric();
+
+   gluCylinder(quadric,0.75,0.75,0.5,90,60);
+   
+
+
+   //EYES
+   glPopMatrix();
+   glPushMatrix();
+   
+
+   glTranslatef(0,0,-1.1);
+   drawFilledCircle(-0.45,4.35,0.25); 
+
+   glPopMatrix();
+   glPushMatrix();
+   
+ 
+   glTranslatef(0,0,-1.1);
+   drawFilledCircle(0.45,4.35,0.25); 
+
+}
+
+
+
+
+void CallBackRenderScene(void)
+{
+// char buf[80]; // For our strings.
+   glViewport(0,0,800,600);
+   glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
+  
+   //Rotate object and translate it used for when the cube is pushed
+   //glTranslatef(0.0f,0.0f,-2.0f);
+   //glRotatef(Pyr_Rot,0.0f,0.0f,1.0f);
+   //glTranslatef(0.0f,0.0f,2.0f);
+   
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+   buildRobot(); 
+
    glLoadIdentity();
    glMatrixMode(GL_PROJECTION);
    glPushMatrix();   
@@ -318,6 +376,13 @@ void mouseClick(int button, int state, int x, int y)
      //gluLookAt(5, 5, 5 ,0,0, 0, 0, 1, 0);
   
   if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) 
+     CallBackResizeScene(Window_Width, Window_Height);
+
+    if (button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN) 
+      gluLookAt(-5,20, -5,0,0,0,0,0,1);
+     //gluLookAt(5, 5, 5 ,0,0, 0, 0, 1, 0);
+  
+  if (button == GLUT_MIDDLE_BUTTON && state == GLUT_UP) 
      CallBackResizeScene(Window_Width, Window_Height);
 }
 
