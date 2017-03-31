@@ -20,33 +20,69 @@ int Window_Height = 600;
 float Y_Rot   = 0.0f;  
 float Y_Speed = -30.0f;
 float Head_Rot = 0; 
-float Head_Speed = 0;
+
 //Z value
 float Z_Off = 0.0f;
-//const float PI = 3.14159;
+float Robot_X = 0; 
+float Robot_Y = 0; 
+float Robot_Z = 0; 
+int robotRotate = 0; 
+bool translateOrigin = false; 
+
+void pushRobot()
+{
+   if(robotRotate == 0)
+      Robot_Z -= 0.05f; 
+   else if((robotRotate) == 90)
+      Robot_X -= 0.05f;
+   else if((robotRotate) == 180)
+      Robot_Z += 0.05f; 
+   else if((robotRotate) == 270)
+      Robot_X += 0.05f;
+}
+
+void robRot(int r)
+{
+   robotRotate = (r + robotRotate) % 360; 
+
+}
+
+void adjustHead(float r)
+{
+   Head_Rot = robotRotate + r;
+}
 
 void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
    int i;
    int triangleAmount = 20; //# of triangles used to draw circle
    
-   //GLfloat radius = 0.8f; //radius
    GLfloat twicePi = 2.0f * M_PI;
    
    glBegin(GL_TRIANGLE_FAN);
       glVertex2f(x, y); // center of circle
       for(i = 0; i <= triangleAmount;i++) { 
          glVertex2f(
-                  x + (radius * cos(i *  twicePi / triangleAmount)), 
+            x + (radius * cos(i *  twicePi / triangleAmount)), 
              y + (radius * sin(i * twicePi / triangleAmount))
          );
       }
    glEnd();
 }
 
-void buildRobot()
+void buildRobot()//**********************************************************************************************************************************************************
 {
    glPushMatrix();
    glPopMatrix();
+
+   if(translateOrigin == true)
+      glTranslatef(0,0,0);
+
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
+
+   glRotatef(robotRotate, 0,1,0); 
+
+   glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
 
    //TRIANGLES 
    glBegin(GL_TRIANGLES); 
@@ -67,10 +103,21 @@ void buildRobot()
    glEnd();
 
    glPopMatrix();
-
+   glPushMatrix();
 //HEAD
 
-      glBegin(GL_QUADS); 
+   if(translateOrigin == true)
+   glTranslatef(0,0,0);
+   
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
+  
+   glRotatef(Head_Rot, 0,1,0);
+
+   glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
+     glTranslatef(Robot_X, Robot_Y, Robot_Z);
+   //glRotatef(robotRotate, 0,1,0); 
+
+   glBegin(GL_QUADS); 
 
 
    //Far face.
@@ -134,6 +181,17 @@ void buildRobot()
    glPopMatrix(); 
    glPushMatrix();
 
+   if(translateOrigin == true)
+      glTranslatef(0,0,0);
+
+
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
+  
+   glRotatef(robotRotate, 0,1,0); 
+
+
+   glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
+     glTranslatef(Robot_X, Robot_Y, Robot_Z);
    glBegin(GL_QUADS); 
 
    //Rotate object and translate it used for when the cube is pushed
@@ -160,7 +218,18 @@ void buildRobot()
    glPushMatrix();
 
    //CUBE
-   
+   if(translateOrigin == true)
+      glTranslatef(0,0,0);
+
+
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
+  
+   glRotatef(robotRotate, 0,1,0); 
+
+
+   glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
+
    glBegin(GL_QUADS); 
 
 
@@ -221,9 +290,21 @@ void buildRobot()
    
    glEnd();
 
-//CYLINDER
+//CYLINDERS
    glPopMatrix(); 
    glPushMatrix();
+   //YELLOW ON HEAD
+   if(translateOrigin == true)
+      glTranslatef(0,0,0);
+
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
+  
+   glRotatef(robotRotate, 0,1,0); 
+
+
+   glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
+
    usleep(10000);
    glTranslatef(0.0f,5.5f,0.0f);
    glRotatef(Y_Rot,0.0f,1.0f,0.0f);
@@ -241,32 +322,47 @@ void buildRobot()
    glPopMatrix();
    glPushMatrix();
 
+
+   //RED ON HEAD
+   if(translateOrigin == true)
+      glTranslatef(0,0,0);
+
+
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
+   glRotatef(robotRotate, 0,1,0); 
+   glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
+
    usleep(10000);
-   glTranslatef(0.0f,6.0f,0.0f);
+   glTranslatef(0.0f,6.0f, 0.0f);
    glRotatef(Y_Rot,0.0f,1.0f,0.0f);
-   glTranslatef(0.0f,-6.0f,0.0f);
+   glTranslatef(0.0f,-6.0f, 0.0f);
 
    glTranslatef(0,6.0,0);
    glRotatef(90,1.0f,0.0f,0.0f);
 
-   glColor3f(0.6,0.0,0.6);
+   glColor3f(0.8,0.0,0.0);
   
    quadric = gluNewQuadric();
 
    gluCylinder(quadric,0.25,0.25,0.5,90,60);
    
 
-
    glPopMatrix();
    glPushMatrix();
+   
 
-   glTranslatef(0,3.5,0);
+   //NECK
+
+   if(translateOrigin == true)
+      glTranslatef(0,0,0);
+
+   glTranslatef(0 + Robot_X,3.5 + Robot_Y,0 + Robot_Z);
+   //glRotatef(robotRotate, 0,1,0); 
    glRotatef(90,1.0f,0.0f,0.0f);
    
    glColor3f(0.6,0.0,0.6);
-   //GLUquadric *quadric;
    quadric = gluNewQuadric();
-
    gluCylinder(quadric,0.75,0.75,0.5,90,60);
    
 
@@ -274,24 +370,35 @@ void buildRobot()
    //EYES
    glPopMatrix();
    glPushMatrix();
-   
 
+   if(translateOrigin == true)
+      glTranslatef(0,0,0);
+   
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
+  
+   glRotatef(Head_Rot, 0,1,0);
    glTranslatef(0,0,-1.1);
+  
    drawFilledCircle(-0.45,4.35,0.25); 
 
    glPopMatrix();
    glPushMatrix();
    
- 
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
+  
+   glRotatef(Head_Rot, 0,1,0);
+   //glRotatef(robotRotate, 0,1,0); 
+
    glTranslatef(0,0,-1.1);
+  
    drawFilledCircle(0.45,4.35,0.25); 
 
-}
+}//*****************&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&********************************************&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&*******************************&&&&
 
 
 
 
-void CallBackRenderScene(void)
+void CallBackRenderScene(void)//(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((())))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 {
 // char buf[80]; // For our strings.
    glViewport(0,0,800,600);
@@ -315,19 +422,41 @@ void CallBackRenderScene(void)
    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
    glutSwapBuffers();
+
+
+   usleep(10000);
+   adjustHead(0);
+
+
    Y_Rot += Y_Speed;
-}
+}//((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
 
 void myCBKey(unsigned char key, int x, int y)
 {
  switch (key)
    {
-      case 'z':
+      case 'q':
       {
-    Z_Off -= 0.50f;
+         robRot(90);
       }
     break;   
+
+          case 'a':
+      {
+         robRot(270);
+      }
+    break;   
+
+      case 'z':
+      {
+         pushRobot();
+      }
+    break;   
+
+    case 'r': 
+      translateOrigin = true;
+   break;
    default:
       printf ("KP: No action for %d.\n", key);
       break;
@@ -386,6 +515,28 @@ void mouseClick(int button, int state, int x, int y)
      CallBackResizeScene(Window_Width, Window_Height);
 }
 
+void CallBackSpecialKeyPressed(int key, int x, int y)
+{
+   switch (key) {
+   case GLUT_KEY_F1:
+      adjustHead(0);
+      break;
+   case GLUT_KEY_F2: 
+      adjustHead(270);
+      break;
+
+   case GLUT_KEY_F3: 
+      adjustHead(90);
+      break;
+
+
+      break;
+   default:
+      printf ("SKP: No action for %d.\n", key);
+      break;
+    }
+}
+
 
 int main(int argc, char **argv)
 {
@@ -397,6 +548,7 @@ int main(int argc, char **argv)
    glutIdleFunc(&CallBackRenderScene);
    glutReshapeFunc(&CallBackResizeScene);
    glutKeyboardFunc(&myCBKey);
+   glutSpecialFunc(&CallBackSpecialKeyPressed);
    MyInit(Window_Width, Window_Height);
    glutMouseFunc(&mouseClick);
    glEnable(GL_DEPTH_TEST); 
