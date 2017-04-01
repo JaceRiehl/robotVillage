@@ -26,8 +26,26 @@ float Z_Off = 0.0f;
 float Robot_X = 0; 
 float Robot_Y = 0; 
 float Robot_Z = 0; 
+float Lookat_X = 0.0f;
+float Lookat_Y = 4.0f;
+float Lookat_Z = 10.0f;
 int robotRotate = 0; 
 bool translateOrigin = false; 
+
+static void PrintString(void *font, char *str)
+{
+   int i,len=strlen(str);
+
+   for(i=0;i < len; i++)
+      glutBitmapCharacter(font,*str++);
+}
+
+void newLookAt(float x, float y, float z)
+{
+   Lookat_X = x;
+   Lookat_Y = y;
+   Lookat_Z = z;
+}
 
 void pushRobot()
 {
@@ -50,6 +68,19 @@ void robRot(int r)
 void adjustHead(float r)
 {
    Head_Rot = robotRotate + r;
+}
+
+void adjustLookat()
+{
+   
+   if((robotRotate) == 90)
+        gluLookAt(5,4, 10,0,0,0,0,1,0);
+   else if((robotRotate) == 180)
+      gluLookAt(0,4 , -10,0,0,0,0,1,0);
+   else if((robotRotate) == 270)
+      gluLookAt(0,4, 10 ,0,0,0,0,1,0);
+   else 
+      gluLookAt(-5,4 , 10,0,0,0,0,1,0);
 }
 
 void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
@@ -400,8 +431,8 @@ void buildRobot()//*************************************************************
 
 void CallBackRenderScene(void)//(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((())))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 {
-// char buf[80]; // For our strings.
-   glViewport(0,0,800,600);
+   char buf[80]; // For our strings.
+
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
   
@@ -417,6 +448,23 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
    glLoadIdentity();
    glMatrixMode(GL_PROJECTION);
    glPushMatrix();   
+   glLoadIdentity();
+
+   glOrtho(0,Window_Width,0,Window_Height,-1.0,1.0);
+   glColor4f(0.6,1.0,0.6,1.00); 
+
+   sprintf(buf,"%f", Lookat_X);
+   glRasterPos2i(2,2);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
+
+   sprintf(buf,"%f", Lookat_Y); // Print the string into a buffer
+   glRasterPos2i(2,14);                         // Set the coordinate
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+
+   sprintf(buf,"%f", Lookat_Z); // Print the string into a buffer
+   glRasterPos2i(2,26);                         // Set the coordinate
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+
    glTranslatef(6.0f, Window_Height - 14, 0.0f);
    glPopMatrix();
    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
@@ -432,36 +480,7 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
 }//((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
 
-void myCBKey(unsigned char key, int x, int y)
-{
- switch (key)
-   {
-      case 'q':
-      {
-         robRot(90);
-      }
-    break;   
 
-          case 'a':
-      {
-         robRot(270);
-      }
-    break;   
-
-      case 'z':
-      {
-         pushRobot();
-      }
-    break;   
-
-    case 'r': 
-      translateOrigin = true;
-   break;
-   default:
-      printf ("KP: No action for %d.\n", key);
-      break;
-   }
-}
 
 
 
@@ -470,12 +489,14 @@ void CallBackResizeScene(int Width, int Height)
    if (Height == 0)
       Height = 1;
   
-       
-   gluLookAt(0,4, 10,0,4,0,0,1,0);
+   //adjustLookat(); 
+   
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   glOrtho(-16, 16, -12, 12, -20, 20);
+   glOrtho(-16, 16, -12, 12, -40, 40);
+   gluLookAt(Lookat_X, Lookat_Y, Lookat_Z,Robot_X,Robot_Y,Robot_Z,0,1,0);
    glMatrixMode(GL_MODELVIEW);
+
    Window_Width  = Width;
    Window_Height = Height;
 }
@@ -483,6 +504,7 @@ void CallBackResizeScene(int Width, int Height)
 
 void MyInit(int Width, int Height) 
 {
+   gluLookAt(5, 5, 5 ,0,0, 0, 0, 1, 0);
    glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
    glClearDepth(1.0);
    glDepthFunc(GL_LESS); 
@@ -490,6 +512,84 @@ void MyInit(int Width, int Height)
    CallBackResizeScene(Width,Height);
 }
 
+void myCBKey(unsigned char key, int x, int y)
+{
+ switch (key)
+   {
+      case 'q':
+      {
+         if(robotRotate == 0)
+         {
+            newLookAt(10.0f,4.0f,0.0f);
+            robRot(90);
+            CallBackResizeScene(Window_Width, Window_Height);
+         }
+         else if((robotRotate) == 90)
+         {
+            newLookAt(0.0f,4.0f,-10.0f);
+            robRot(90);
+            CallBackResizeScene(Window_Width, Window_Height);
+         }
+         else if((robotRotate) == 180)
+         {
+            newLookAt(-10.0f,4.0f,0.0f);
+            robRot(90);
+            CallBackResizeScene(Window_Width, Window_Height);
+         }
+         else if((robotRotate) == 270)
+         {
+            newLookAt(0.0f,4.0f,10.0f);
+            robRot(90);
+            CallBackResizeScene(Window_Width, Window_Height);
+         }
+      }
+    break;   
+
+          case 'a':
+      {
+         if(robotRotate == 0)
+         {
+            newLookAt(-10.0f,4.0f,0.0f);
+            robRot(270);
+            CallBackResizeScene(Window_Width, Window_Height);
+         }
+         else if((robotRotate) == 270)
+         {
+            newLookAt(0.0f,4.0f,-10.0f);
+            robRot(270);
+            CallBackResizeScene(Window_Width, Window_Height);
+         }
+         else if((robotRotate) == 180)
+         {
+            newLookAt(-10.0f,4.0f,0.0f);
+            robRot(90);
+            CallBackResizeScene(Window_Width, Window_Height);
+         }
+         else if((robotRotate) == 90)
+         {
+            newLookAt(0.0f,4.0f,10.0f);
+            robRot(270);
+            CallBackResizeScene(Window_Width, Window_Height);
+         }
+      }
+    break;   
+
+      case 'z':
+      {
+         pushRobot();
+         CallBackResizeScene(Window_Width, Window_Height);
+      }
+    break;   
+
+    case 'r': 
+      translateOrigin = true;
+
+   break;
+   default:
+      printf ("KP: No action for %d.\n", key);
+      break;
+   }
+}
 
 void mouseClick(int button, int state, int x, int y)
 {
@@ -529,6 +629,44 @@ void CallBackSpecialKeyPressed(int key, int x, int y)
       adjustHead(90);
       break;
 
+   case GLUT_KEY_F4: 
+     CallBackResizeScene(Window_Width, Window_Height);
+      break;
+
+   case GLUT_KEY_F5: 
+   if(robotRotate == 90)
+      gluLookAt(3 + Robot_X, 0 - Robot_Y, 3 + Robot_Z ,Robot_X, Robot_Y, Robot_Z, 0, 1, 0);
+   else if(robotRotate == 180)
+      gluLookAt(3 - Robot_X, 0 - Robot_Y, -3 + Robot_Z ,Robot_X, Robot_Y, Robot_Z, 0, 1, 0);
+   else if(robotRotate == 270)
+      gluLookAt(-3 - Robot_X, 0 - Robot_Y, -3 + Robot_Z ,Robot_X, Robot_Y, Robot_Z, 0, 1, 0);
+   else 
+       gluLookAt(-3 + Robot_X, 0 - Robot_Y, 3 - Robot_Z ,Robot_X, Robot_Y, Robot_Z, 0, 1, 0);
+
+      break;
+
+
+
+   case GLUT_KEY_F6: 
+    if(robotRotate == 90)
+      gluLookAt(3 - Robot_X, 0, -3 + Robot_Z ,Robot_X,Robot_Y, Robot_Z, 0, 1, 0);
+   else  if(robotRotate == 180)
+      gluLookAt(-3 - Robot_X, 0, -3 + Robot_Z ,Robot_X,Robot_Y, Robot_Z, 0, 1, 0);
+   else  if(robotRotate == 270)
+      gluLookAt(-3 - Robot_X, 0, 3 + Robot_Z ,Robot_X,Robot_Y, Robot_Z, 0, 1, 0);
+   else
+      gluLookAt(3 - Robot_X, 0, 3 + Robot_Z ,Robot_X,Robot_Y, Robot_Z, 0, 1, 0);
+      break;
+
+
+
+   case GLUT_KEY_F7: 
+      gluLookAt(5 - Robot_X, 5, -5 + Robot_Z ,Robot_X,Robot_Y, Robot_Z, 0, 1, 0);
+      break;
+
+   case GLUT_KEY_F8:
+      gluLookAt(-5 - Robot_X, 5, -5 + Robot_Z ,Robot_X,Robot_Y, Robot_Z, 0, 1, 0);
+      break;
 
       break;
    default:
