@@ -19,21 +19,16 @@ int Window_Height = 600;
 // The cubes rotation 
 double Y_Rot   = 0.0f;  
 double Y_Speed = -30.0f;
-double Head_Rot = 0; 
-
 double Robot_X = 0; 
 double Robot_Y = 0; 
 double Robot_Z = 0; 
 double Lookat_X = 0.0;
 double Lookat_Y = 4.0;
 double Lookat_Z = 10.0;
-double changeIn_X = 0.0;
-double changeIn_Z = 0.0;
-int whichLoop = 0;
+
 int robotRotate = 0; 
 int headRotate = 0.0;
-
-bool translateOrigin = false; 
+ 
 static bool paused = false;
 
 static void PrintString(void *font, char *str)
@@ -109,9 +104,6 @@ void buildRobot()//*************************************************************
    glPushMatrix();
    glPopMatrix();
 
-   if(translateOrigin == true)
-      glTranslatef(0,0,0);
-
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
 
    glRotatef(robotRotate, 0,1,0); 
@@ -139,18 +131,14 @@ void buildRobot()//*************************************************************
 
    glPopMatrix();
    glPushMatrix();
-//HEAD
 
-   if(translateOrigin == true)
-   glTranslatef(0,0,0);
-   
+   //HEAD
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
   
    glRotatef(headRotate, 0,1,0);
 
    glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
-     glTranslatef(Robot_X, Robot_Y, Robot_Z);
-   //glRotatef(robotRotate, 0,1,0); 
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
 
    glBegin(GL_QUADS); 
 
@@ -212,13 +200,9 @@ void buildRobot()//*************************************************************
    
    glEnd();
 
-//front face square
+   //front face square
    glPopMatrix(); 
    glPushMatrix();
-
-   if(translateOrigin == true)
-      glTranslatef(0,0,0);
-
 
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
   
@@ -226,14 +210,8 @@ void buildRobot()//*************************************************************
 
 
    glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
-     glTranslatef(Robot_X, Robot_Y, Robot_Z);
+   glTranslatef(Robot_X, Robot_Y, Robot_Z);
    glBegin(GL_QUADS); 
-
-   //Rotate object and translate it used for when the cube is pushed
-   //usleep(100000); 
-   
-   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   //glBegin(GL_QUADS); 
 
    //Far face.
    glNormal3f(0.0f, 0.0f,-1.0f);
@@ -253,10 +231,6 @@ void buildRobot()//*************************************************************
    glPushMatrix();
 
    //CUBE
-   if(translateOrigin == true)
-      glTranslatef(0,0,0);
-
-
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
   
    glRotatef(robotRotate, 0,1,0); 
@@ -325,12 +299,9 @@ void buildRobot()//*************************************************************
    
    glEnd();
 
-//CYLINDERS
+   //CYLINDERS
    glPopMatrix(); 
    glPushMatrix();
-   //YELLOW ON HEAD
-   if(translateOrigin == true)
-      glTranslatef(0,0,0);
 
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
   
@@ -357,12 +328,6 @@ void buildRobot()//*************************************************************
    glPopMatrix();
    glPushMatrix();
 
-
-   //RED ON HEAD
-   if(translateOrigin == true)
-      glTranslatef(0,0,0);
-
-
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
    glRotatef(robotRotate, 0,1,0); 
    glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
@@ -388,10 +353,6 @@ void buildRobot()//*************************************************************
    
 
    //NECK
-
-   if(translateOrigin == true)
-      glTranslatef(0,0,0);
-
    glTranslatef(0 + Robot_X,3.5 + Robot_Y,0 + Robot_Z);
    //glRotatef(robotRotate, 0,1,0); 
    glRotatef(90,1.0f,0.0f,0.0f);
@@ -405,9 +366,6 @@ void buildRobot()//*************************************************************
    //EYES
    glPopMatrix();
    glPushMatrix();
-
-   if(translateOrigin == true)
-      glTranslatef(0,0,0);
    
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
   
@@ -464,68 +422,69 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
    glRasterPos2i(2,14);
    PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%f", Lookat_Y); // Print the string into a buffer
-   glRasterPos2i(75,14);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%f", Lookat_Y);
+   glRasterPos2i(75,14);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
    sprintf(buf,"%s", "Lookat_Z: ");
    glRasterPos2i(2,2);
    PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%f", Lookat_Z); // Print the string into a buffer
-   glRasterPos2i(75,2);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%f", Lookat_Z);
+   glRasterPos2i(75,2);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%s", "Robot_X: "); // Print the string into a buffer
-   glRasterPos2i(2,38);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%s", "Robot_X: ");
+   glRasterPos2i(2,38);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%f", Robot_X); // Print the string into a buffer
-   glRasterPos2i(75,38);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%f", Robot_X);
+   glRasterPos2i(75,38);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%s", "Robot_Y: "); // Print the string into a buffer
-   glRasterPos2i(2,50);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%s", "Robot_Y: ");
+   glRasterPos2i(2,50);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%f", Robot_Y); // Print the string into a buffer
-   glRasterPos2i(75,50);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%f", Robot_Y);
+   glRasterPos2i(75,50);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%s", "Robot_Z: "); // Print the string into a buffer
-   glRasterPos2i(2,62);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%s", "Robot_Z: ");
+   glRasterPos2i(2,62);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%f", Robot_Z); // Print the string into a buffer
-   glRasterPos2i(75,62);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%f", Robot_Z);
+   glRasterPos2i(75,62);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%s", "robotRotate: "); // Print the string into a buffer
-   glRasterPos2i(2,74);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%s", "robotRotate: ");
+   glRasterPos2i(2,74);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%i", robotRotate); // Print the string into a buffer
-   glRasterPos2i(75,74);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%i", robotRotate);
+   glRasterPos2i(75,74);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%s", "headRotate: "); // Print the string into a buffer
-   glRasterPos2i(2,86);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%s", "headRotate: ");
+   glRasterPos2i(2,86);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
 
-   sprintf(buf,"%i", headRotate); // Print the string into a buffer
-   glRasterPos2i(75,86);                         // Set the coordinate
-   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   sprintf(buf,"%i", headRotate);
+   glRasterPos2i(75,86);
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);
+
+   //Pause Menu
    if(paused)
    {
-      sprintf(buf,"%s", "Paused"); // Print the string into a buffer
-      glRasterPos2i(362,576);                         // Set the coordinate
-      PrintString(GLUT_BITMAP_TIMES_ROMAN_24, buf);  // Display the string.
+      sprintf(buf,"%s", "Paused");
+      glRasterPos2i(362,576);
+      PrintString(GLUT_BITMAP_TIMES_ROMAN_24, buf);
 
-      sprintf(buf,"%s", "Press 'r' again to resume"); // Print the string into a buffer
-      glRasterPos2i(300,558);                         // Set the coordinate
-      PrintString(GLUT_BITMAP_HELVETICA_18, buf);  // Display the string.     
+      sprintf(buf,"%s", "Press 'r' again to resume");
+      glRasterPos2i(300,558);
+      PrintString(GLUT_BITMAP_HELVETICA_18, buf);    
    }
-
 
    glTranslatef(6.0f, Window_Height - 14, 0.0f);
    glPopMatrix();
@@ -533,10 +492,7 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
    glutSwapBuffers();
 
-
    usleep(10000);
-   //adjustHead(0);
-
 
    Y_Rot += Y_Speed;
 }//((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -551,7 +507,6 @@ void CallBackResizeScene(int Width, int Height)
    if (Height == 0)
       Height = 1;
   
-   //adjustLookat(); 
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
    glOrtho(-16, 16, -12, 12, -40, 40);
