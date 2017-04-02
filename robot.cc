@@ -8,8 +8,8 @@
 #include <GL/gl.h>  
 #include <GL/glu.h> 
 #include <GL/glut.h> 
-#include<unistd.h> 
-#include<cmath> 
+#include <unistd.h> 
+#include <cmath> 
 
 // Window IDs, window width and height.
 int Window_ID;
@@ -34,6 +34,7 @@ int robotRotate = 0;
 int headRotate = 0.0;
 
 bool translateOrigin = false; 
+static bool paused = false;
 
 static void PrintString(void *font, char *str)
 {
@@ -41,6 +42,13 @@ static void PrintString(void *font, char *str)
 
    for(i=0;i < len; i++)
       glutBitmapCharacter(font,*str++);
+}
+
+void update(int)
+{
+
+   glutTimerFunc(10, update, 0);
+      glutPostRedisplay();
 }
 
 void pushRobot()
@@ -442,7 +450,7 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
    glLoadIdentity();
 
    glOrtho(0,Window_Width,0,Window_Height,-1.0,1.0);
-   glColor4f(0.6,1.0,0.6,1.00); 
+   glColor4f(0.0,0.8,0.5,1.00); 
 
    sprintf(buf,"%s", "Lookat_X: ");
    glRasterPos2i(2,26);
@@ -507,6 +515,17 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
    sprintf(buf,"%i", headRotate); // Print the string into a buffer
    glRasterPos2i(75,86);                         // Set the coordinate
    PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+   if(paused)
+   {
+      sprintf(buf,"%s", "Paused"); // Print the string into a buffer
+      glRasterPos2i(362,576);                         // Set the coordinate
+      PrintString(GLUT_BITMAP_TIMES_ROMAN_24, buf);  // Display the string.
+
+      sprintf(buf,"%s", "Press 'r' again to resume"); // Print the string into a buffer
+      glRasterPos2i(300,558);                         // Set the coordinate
+      PrintString(GLUT_BITMAP_HELVETICA_18, buf);  // Display the string.     
+   }
+
 
    glTranslatef(6.0f, Window_Height - 14, 0.0f);
    glPopMatrix();
@@ -533,7 +552,6 @@ void CallBackResizeScene(int Width, int Height)
       Height = 1;
   
    //adjustLookat(); 
-   
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
    glOrtho(-16, 16, -12, 12, -40, 40);
@@ -561,353 +579,461 @@ void myCBKey(unsigned char key, int x, int y)
    {
       case 'q':
       {
-         if(robotRotate == 0)
+         if(!paused)
          {
-            Lookat_X = 10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            adjustHead(90);
-            robRot(90);
-            CallBackResizeScene(Window_Width, Window_Height);
-         }
-         else if((robotRotate) == 90)
-         {
-            Lookat_Z = -10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            adjustHead(90);
-            robRot(90);
-            CallBackResizeScene(Window_Width, Window_Height);
-         }
-         else if((robotRotate) == 180)
-         {
-            Lookat_X = -10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            adjustHead(90);
-            robRot(90);
-            CallBackResizeScene(Window_Width, Window_Height);
-         }
-         else if((robotRotate) == 270)
-         {
-            Lookat_Z = 10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            adjustHead(90);
-            robRot(90);
-            CallBackResizeScene(Window_Width, Window_Height);
+            if(robotRotate == 0)
+            {
+               Lookat_X = 10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               adjustHead(90);
+               robRot(90);
+               CallBackResizeScene(Window_Width, Window_Height);
+            }
+            else if((robotRotate) == 90)
+            {
+               Lookat_Z = -10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               adjustHead(90);
+               robRot(90);
+               CallBackResizeScene(Window_Width, Window_Height);
+            }
+            else if((robotRotate) == 180)
+            {
+               Lookat_X = -10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               adjustHead(90);
+               robRot(90);
+               CallBackResizeScene(Window_Width, Window_Height);
+            }
+            else if((robotRotate) == 270)
+            {
+               Lookat_Z = 10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               adjustHead(90);
+               robRot(90);
+               CallBackResizeScene(Window_Width, Window_Height);
+            }
          }
       }
-    break;   
+      break;   
 
-          case 'a':
+      case 'a':
       {
-         if(robotRotate == 0)
+         if(!paused)
          {
-            Lookat_X = -10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            adjustHead(270);
-            robRot(270);
-            CallBackResizeScene(Window_Width, Window_Height);
-         }
-         else if((robotRotate) == 270)
-         {
-            Lookat_Z = -10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            adjustHead(270);
-            robRot(270);
-            CallBackResizeScene(Window_Width, Window_Height);
-         }
-         else if((robotRotate) == 180)
-         {
-            Lookat_X = -10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            adjustHead(90);
-            robRot(90);
-            CallBackResizeScene(Window_Width, Window_Height);
-         }
-         else if((robotRotate) == 90)
-         {
-            Lookat_Z = 10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            adjustHead(270);
-            robRot(270);
-            CallBackResizeScene(Window_Width, Window_Height);
+            if(robotRotate == 0)
+            {
+               Lookat_X = -10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               adjustHead(270);
+               robRot(270);
+               CallBackResizeScene(Window_Width, Window_Height);
+            }
+            else if((robotRotate) == 270)
+            {
+               Lookat_Z = -10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               adjustHead(270);
+               robRot(270);
+               CallBackResizeScene(Window_Width, Window_Height);
+            }
+            else if((robotRotate) == 180)
+            {
+               Lookat_X = -10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               adjustHead(90);
+               robRot(90);
+               CallBackResizeScene(Window_Width, Window_Height);
+            }
+            else if((robotRotate) == 90)
+            {
+               Lookat_Z = 10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               adjustHead(270);
+               robRot(270);
+               CallBackResizeScene(Window_Width, Window_Height);
+            }
          }
       }
-    break;   
+      break;   
 
       case 'z':
       {
-         pushRobot();
-         CallBackResizeScene(Window_Width, Window_Height);
+         if(!paused)
+         {
+            pushRobot();
+            CallBackResizeScene(Window_Width, Window_Height);
+         }
+
       }
-    break;   
+      break;   
 
-    case 'r': 
-      translateOrigin = true;
+      case 'r': 
+      {
+         if(!paused)
+         {
+            Lookat_X = 0;
+            Lookat_Z = 10;
+            Robot_X = 0;
+            Robot_Z = 0;
+            robotRotate = 0;
+            headRotate = 0;
+            glutPostRedisplay();
+            CallBackResizeScene(Window_Width, Window_Height);            
+         }
+      }
+      break;
 
-   break;
+      case 'p':
+         paused = !paused;
+      break;
    default:
       printf ("KP: No action for %d.\n", key);
-      break;
+   break;
    }
 }
 
+//*******************************************************
+// Temporary mouse functions. Selecting building        *
+// Will be implemented later                            *
+//*******************************************************
 void mouseClick(int button, int state, int x, int y)
 {
- if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) 
-   //gluLookAt(0,4, -10,0,4,0,0,1,0);
-     gluLookAt(5, 5, 5 ,0,0, 0, 0, 1, 0);
-  
-  if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP) 
-     CallBackResizeScene(Window_Width, Window_Height);
+  if(!paused)
+  {
+     if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) 
+        gluLookAt(5, 5, 5 ,0,0, 0, 0, 1, 0);
+     
+     if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP) 
+        CallBackResizeScene(Window_Width, Window_Height);
 
-  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) 
-      gluLookAt(0,4, -10,0,4,0,0,1,0);
-     //gluLookAt(5, 5, 5 ,0,0, 0, 0, 1, 0);
-  
-  if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) 
-     CallBackResizeScene(Window_Width, Window_Height);
+     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) 
+         gluLookAt(0,4, -10,0,4,0,0,1,0);
+     
+     if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) 
+        CallBackResizeScene(Window_Width, Window_Height);
 
-    if (button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN) 
-      gluLookAt(-5,20, -5,0,0,0,0,0,1);
-     //gluLookAt(5, 5, 5 ,0,0, 0, 0, 1, 0);
-  
-  if (button == GLUT_MIDDLE_BUTTON && state == GLUT_UP) 
-     CallBackResizeScene(Window_Width, Window_Height);
+     if (button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN) 
+        gluLookAt(-5,20, -5,0,0,0,0,0,1);
+     
+     if (button == GLUT_MIDDLE_BUTTON && state == GLUT_UP) 
+        CallBackResizeScene(Window_Width, Window_Height);   
+  }
+
 }
 
-//Head will stay rotated as long as the key is pressed.
+//Actions for when a key is released
 void keySpecialUp (int key, int x, int y) 
 {  
    switch (key) {
       case GLUT_KEY_F2: 
       {
-         if(robotRotate == 0)
-         {     
-            Lookat_Z = 10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            headRotate = 0;
-         }
-         else if(robotRotate == 90)
+         if(!paused)
          {
-            Lookat_X = 10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            headRotate = 90;
+            if(robotRotate == 0)
+            {     
+               Lookat_Z = 10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 0;
+            }
+            else if(robotRotate == 90)
+            {
+               Lookat_X = 10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 90;
+            }
+            else if(robotRotate == 180)
+            {
+               Lookat_Z = -10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 180;
+            }
+            else if(robotRotate == 270)
+            {
+               Lookat_X = -10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 270;
+            }    
          }
-         else if(robotRotate == 180)
-         {
-            Lookat_Z = -10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            headRotate = 180;
-         }
-         else if(robotRotate == 270)
-         {
-            Lookat_X = -10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            headRotate = 270;
-         }
-         break;            
-      break;      
+         break;
       }
+
       case GLUT_KEY_F3: 
       {
-         if(robotRotate == 0)
-         {     
-            Lookat_Z = 10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            headRotate = 0;
-         }
-         else if(robotRotate == 90)
+         if(!paused)
          {
-            Lookat_X = 10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            headRotate = 90;
+            if(robotRotate == 0)
+            {     
+               Lookat_Z = 10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 0;
+            }
+            else if(robotRotate == 90)
+            {
+               Lookat_X = 10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 90;
+            }
+            else if(robotRotate == 180)
+            {
+               Lookat_Z = -10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 180;
+            }
+            else if(robotRotate == 270)
+            {
+               Lookat_X = -10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 270;
+            }            
          }
-         else if(robotRotate == 180)
-         {
-            Lookat_Z = -10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            headRotate = 180;
-         }
-         else if(robotRotate == 270)
-         {
-            Lookat_X = -10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            headRotate = 270;
-         }
-         break; 
-      break;
+         break;
       }
-   break;
    }
    glutPostRedisplay();
    CallBackResizeScene(Window_Width, Window_Height);
 }
 
+//Actions for when a key is pressed
 void CallBackSpecialKeyPressed(int key, int x, int y)
 {
-   int i;
    switch (key) {
       case GLUT_KEY_F1:
       {
-         Lookat_X = 0 + Robot_X;
-         Lookat_Z = 10 + Robot_Z;
-         break;      
+         if(!paused)
+         {
+            if(robotRotate == 0)
+            {     
+               Lookat_Z = 10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 0;
+            }
+            else if(robotRotate == 90)
+            {
+               Lookat_X = 10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 90;
+            }
+            else if(robotRotate == 180)
+            {
+               Lookat_Z = -10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 180;
+            }
+            else if(robotRotate == 270)
+            {
+               Lookat_X = -10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 270;
+            }     
+         }  
+         break;
       }
+
       case GLUT_KEY_F2: 
       {
-         if(robotRotate == 0)
-         {     
-            Lookat_X = 10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            headRotate = 90;
-         }
-         else if(robotRotate == 90)
+         if(!paused)
          {
-            Lookat_Z = -10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            headRotate = 180;
+            if(robotRotate == 0)
+            {     
+               Lookat_X = 10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 90;
+            }
+            else if(robotRotate == 90)
+            {
+               Lookat_Z = -10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 180;
+            }
+            else if(robotRotate == 180)
+            {
+               Lookat_X = -10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 270;
+            }
+            else if(robotRotate == 270)
+            {
+               Lookat_Z = 10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 0;
+            }                       
          }
-         else if(robotRotate == 180)
-         {
-            Lookat_X = -10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            headRotate = 270;
-         }
-         else if(robotRotate == 270)
-         {
-            Lookat_Z = 10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            headRotate = 0;
-         }
-         break;            
-      break;      
+         break;     
       }
+
       case GLUT_KEY_F3: 
       {
-         if(robotRotate == 0)
-         {     
-            Lookat_X = -10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            headRotate = 270;
-         }
-         else if(robotRotate == 90)
+         if(!paused)
          {
-            Lookat_Z = 10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            headRotate = 0;
-         }
-         else if(robotRotate == 180)
-         {
-            Lookat_X = 10.0 + Robot_X;
-            Lookat_Z = Robot_Z;
-            headRotate = 90;
-         }
-         else if(robotRotate == 270)
-         {
-            Lookat_Z = -10.0 + Robot_Z;
-            Lookat_X = Robot_X;
-            headRotate = 180;
+            if(robotRotate == 0)
+            {     
+               Lookat_X = -10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 270;
+            }
+            else if(robotRotate == 90)
+            {
+               Lookat_Z = 10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 0;
+            }
+            else if(robotRotate == 180)
+            {
+               Lookat_X = 10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 90;
+            }
+            else if(robotRotate == 270)
+            {
+               Lookat_Z = -10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 180;
+            }            
          }
          break; 
       }
+
       case GLUT_KEY_F4: 
       {
-         Lookat_X = 0 + Robot_X;
-         Lookat_Z = 10 + Robot_Z;
+         if(!paused)
+         {
+            if(robotRotate == 0)
+            {     
+               Lookat_Z = 10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 0;
+            }
+            else if(robotRotate == 90)
+            {
+               Lookat_X = 10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 90;
+            }
+            else if(robotRotate == 180)
+            {
+               Lookat_Z = -10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 180;
+            }
+            else if(robotRotate == 270)
+            {
+               Lookat_X = -10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 270;
+            } 
+         }
          break;
       }
+
       case GLUT_KEY_F5:
       { 
-         if(robotRotate == 0)
+         if(!paused)
          {
-            Lookat_X = -10 + Robot_X;
-            Lookat_Z = 10 + Robot_Z;
-         }
-         else if(robotRotate == 90)
-         {
-            Lookat_X = 10 + Robot_X;
-            Lookat_Z = 10 + Robot_Z;
-         }
-         else if(robotRotate == 180)
-         {
-            Lookat_X = 10 + Robot_X;
-            Lookat_Z = -10 + Robot_Z;
-         }
-         else if(robotRotate == 270)
-         {
-            Lookat_X = -10 + Robot_X;
-            Lookat_Z = -10 + Robot_Z;
+            if(robotRotate == 0)
+            {
+               Lookat_X = -10 + Robot_X;
+               Lookat_Z = 10 + Robot_Z;
+            }
+            else if(robotRotate == 90)
+            {
+               Lookat_X = 10 + Robot_X;
+               Lookat_Z = 10 + Robot_Z;
+            }
+            else if(robotRotate == 180)
+            {
+               Lookat_X = 10 + Robot_X;
+               Lookat_Z = -10 + Robot_Z;
+            }
+            else if(robotRotate == 270)
+            {
+               Lookat_X = -10 + Robot_X;
+               Lookat_Z = -10 + Robot_Z;
+            }           
          }
          break;
       }    
+
       case GLUT_KEY_F6: 
       { 
-         if(robotRotate == 0)
+         if(!paused)
          {
-            Lookat_X = 10 + Robot_X;
-            Lookat_Z = 10 + Robot_Z;
-         }
-         else if(robotRotate == 90)
-         {
-            Lookat_X = 10 + Robot_X;
-            Lookat_Z = -10 + Robot_Z;
-         }
-         else if(robotRotate == 180)
-         {
-            Lookat_X = -10 + Robot_X;
-            Lookat_Z = -10 + Robot_Z;
-         }
-         else if(robotRotate == 270)
-         {
-            Lookat_X = -10 + Robot_X;
-            Lookat_Z = 10 + Robot_Z;
+            if(robotRotate == 0)
+            {
+               Lookat_X = 10 + Robot_X;
+               Lookat_Z = 10 + Robot_Z;
+            }
+            else if(robotRotate == 90)
+            {
+               Lookat_X = 10 + Robot_X;
+               Lookat_Z = -10 + Robot_Z;
+            }
+            else if(robotRotate == 180)
+            {
+               Lookat_X = -10 + Robot_X;
+               Lookat_Z = -10 + Robot_Z;
+            }
+            else if(robotRotate == 270)
+            {
+               Lookat_X = -10 + Robot_X;
+               Lookat_Z = 10 + Robot_Z;
+            }            
          }
          break;
       }
+
       case GLUT_KEY_F7: 
       {
-         if(robotRotate == 0)
+         if(!paused)
          {
-            Lookat_X = 10 + Robot_X;
-            Lookat_Z = -10 + Robot_Z;
-         }
-         else if(robotRotate == 90)
-         {
-            Lookat_X = -10 + Robot_X;
-            Lookat_Z = -10 + Robot_Z;
-         }
-         else if(robotRotate == 180)
-         {
-            Lookat_X = -10 + Robot_X;
-            Lookat_Z = 10 + Robot_Z;
-         }
-         else if(robotRotate == 270)
-         {
-            Lookat_X = 10 + Robot_X;
-            Lookat_Z = 10 + Robot_Z;
+            if(robotRotate == 0)
+            {
+               Lookat_X = 10 + Robot_X;
+               Lookat_Z = -10 + Robot_Z;
+            }
+            else if(robotRotate == 90)
+            {
+               Lookat_X = -10 + Robot_X;
+               Lookat_Z = -10 + Robot_Z;
+            }
+            else if(robotRotate == 180)
+            {
+               Lookat_X = -10 + Robot_X;
+               Lookat_Z = 10 + Robot_Z;
+            }
+            else if(robotRotate == 270)
+            {
+               Lookat_X = 10 + Robot_X;
+               Lookat_Z = 10 + Robot_Z;
+            }            
          }
          break;
       }      
+
       case GLUT_KEY_F8: 
       {
-         if(robotRotate == 0)
+         if(!paused)
          {
-            Lookat_X = -10 + Robot_X;
-            Lookat_Z = -10 + Robot_Z;
-         }
-         else if(robotRotate == 90)
-         {
-            Lookat_X = -10 + Robot_X;
-            Lookat_Z = 10 + Robot_Z;
-         }
-         else if(robotRotate == 180)
-         {
-            Lookat_X = 10 + Robot_X;
-            Lookat_Z = 10 + Robot_Z;
-         }
-         else if(robotRotate == 270)
-         {
-            Lookat_X = 10 + Robot_X;
-            Lookat_Z = -10 + Robot_Z;
+            if(robotRotate == 0)
+            {
+               Lookat_X = -10 + Robot_X;
+               Lookat_Z = -10 + Robot_Z;
+            }
+            else if(robotRotate == 90)
+            {
+               Lookat_X = -10 + Robot_X;
+               Lookat_Z = 10 + Robot_Z;
+            }
+            else if(robotRotate == 180)
+            {
+               Lookat_X = 10 + Robot_X;
+               Lookat_Z = 10 + Robot_Z;
+            }
+            else if(robotRotate == 270)
+            {
+               Lookat_X = 10 + Robot_X;
+               Lookat_Z = -10 + Robot_Z;
+            }            
          }
          break;
       }
@@ -923,9 +1049,16 @@ int main(int argc, char **argv)
    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
    glutInitWindowSize(Window_Width, Window_Height);
    Window_ID = glutCreateWindow(PROGRAM_TITLE);
-   glutDisplayFunc(&CallBackRenderScene);
-   glutIdleFunc(&CallBackRenderScene);
-   glutReshapeFunc(&CallBackResizeScene);
+
+   if (!paused)
+   {
+      glutDisplayFunc(&CallBackRenderScene);
+      glutIdleFunc(&CallBackRenderScene);
+      glutReshapeFunc(&CallBackResizeScene);
+      glutTimerFunc(10, update, 0);
+   }
+
+
    glutKeyboardFunc(&myCBKey);
    glutSpecialUpFunc(&keySpecialUp);
    glutSpecialFunc(&CallBackSpecialKeyPressed);
