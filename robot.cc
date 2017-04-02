@@ -1,4 +1,4 @@
-#define PROGRAM_TITLE "Jace Riehl"
+#define PROGRAM_TITLE "Robot Rampage Reloaded"
 
 #include <stdlib.h> 
 #include <stdio.h>    
@@ -31,6 +31,8 @@ double changeIn_X = 0.0;
 double changeIn_Z = 0.0;
 int whichLoop = 0;
 int robotRotate = 0; 
+int headRotate = 0.0;
+
 bool translateOrigin = false; 
 
 static void PrintString(void *font, char *str)
@@ -39,12 +41,6 @@ static void PrintString(void *font, char *str)
 
    for(i=0;i < len; i++)
       glutBitmapCharacter(font,*str++);
-}
-
-void newLookAt(double x, double z)
-{
-   Lookat_X = x;
-   Lookat_Z = z;
 }
 
 void pushRobot()
@@ -77,9 +73,10 @@ void robRot(int r)
 
 }
 
-void adjustHead(double r)
+void adjustHead(int r)
 {
-   Head_Rot = robotRotate + r;
+   headRotate = (r + headRotate) % 360; 
+
 }
 
 void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
@@ -141,7 +138,7 @@ void buildRobot()//*************************************************************
    
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
   
-   glRotatef(Head_Rot, 0,1,0);
+   glRotatef(headRotate, 0,1,0);
 
    glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
      glTranslatef(Robot_X, Robot_Y, Robot_Z);
@@ -406,7 +403,7 @@ void buildRobot()//*************************************************************
    
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
   
-   glRotatef(Head_Rot, 0,1,0);
+   glRotatef(headRotate, 0,1,0);
    glTranslatef(0,0,-1.1);
   
    drawFilledCircle(-0.45,4.35,0.25); 
@@ -416,7 +413,7 @@ void buildRobot()//*************************************************************
    
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
   
-   glRotatef(Head_Rot, 0,1,0);
+   glRotatef(headRotate, 0,1,0);
    //glRotatef(robotRotate, 0,1,0); 
 
    glTranslatef(0,0,-1.1);
@@ -503,6 +500,14 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
    glRasterPos2i(75,74);                         // Set the coordinate
    PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
 
+   sprintf(buf,"%s", "headRotate: "); // Print the string into a buffer
+   glRasterPos2i(2,86);                         // Set the coordinate
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+
+   sprintf(buf,"%i", headRotate); // Print the string into a buffer
+   glRasterPos2i(75,86);                         // Set the coordinate
+   PrintString(GLUT_BITMAP_HELVETICA_12, buf);  // Display the string.
+
    glTranslatef(6.0f, Window_Height - 14, 0.0f);
    glPopMatrix();
    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
@@ -511,7 +516,7 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
 
 
    usleep(10000);
-   adjustHead(0);
+   //adjustHead(0);
 
 
    Y_Rot += Y_Speed;
@@ -560,6 +565,7 @@ void myCBKey(unsigned char key, int x, int y)
          {
             Lookat_X = 10.0 + Robot_X;
             Lookat_Z = Robot_Z;
+            adjustHead(90);
             robRot(90);
             CallBackResizeScene(Window_Width, Window_Height);
          }
@@ -567,6 +573,7 @@ void myCBKey(unsigned char key, int x, int y)
          {
             Lookat_Z = -10.0 + Robot_Z;
             Lookat_X = Robot_X;
+            adjustHead(90);
             robRot(90);
             CallBackResizeScene(Window_Width, Window_Height);
          }
@@ -574,6 +581,7 @@ void myCBKey(unsigned char key, int x, int y)
          {
             Lookat_X = -10.0 + Robot_X;
             Lookat_Z = Robot_Z;
+            adjustHead(90);
             robRot(90);
             CallBackResizeScene(Window_Width, Window_Height);
          }
@@ -581,6 +589,7 @@ void myCBKey(unsigned char key, int x, int y)
          {
             Lookat_Z = 10.0 + Robot_Z;
             Lookat_X = Robot_X;
+            adjustHead(90);
             robRot(90);
             CallBackResizeScene(Window_Width, Window_Height);
          }
@@ -593,6 +602,7 @@ void myCBKey(unsigned char key, int x, int y)
          {
             Lookat_X = -10.0 + Robot_X;
             Lookat_Z = Robot_Z;
+            adjustHead(270);
             robRot(270);
             CallBackResizeScene(Window_Width, Window_Height);
          }
@@ -600,6 +610,7 @@ void myCBKey(unsigned char key, int x, int y)
          {
             Lookat_Z = -10.0 + Robot_Z;
             Lookat_X = Robot_X;
+            adjustHead(270);
             robRot(270);
             CallBackResizeScene(Window_Width, Window_Height);
          }
@@ -607,6 +618,7 @@ void myCBKey(unsigned char key, int x, int y)
          {
             Lookat_X = -10.0 + Robot_X;
             Lookat_Z = Robot_Z;
+            adjustHead(90);
             robRot(90);
             CallBackResizeScene(Window_Width, Window_Height);
          }
@@ -614,6 +626,7 @@ void myCBKey(unsigned char key, int x, int y)
          {
             Lookat_Z = 10.0 + Robot_Z;
             Lookat_X = Robot_X;
+            adjustHead(270);
             robRot(270);
             CallBackResizeScene(Window_Width, Window_Height);
          }
@@ -667,163 +680,242 @@ void keySpecialUp (int key, int x, int y)
    switch (key) {
       case GLUT_KEY_F2: 
       {
-         adjustHead(270);
-         CallBackResizeScene(Window_Width, Window_Height);
-         break;      
+         if(robotRotate == 0)
+         {     
+            Lookat_Z = 10.0 + Robot_Z;
+            Lookat_X = Robot_X;
+            headRotate = 0;
+         }
+         else if(robotRotate == 90)
+         {
+            Lookat_X = 10.0 + Robot_X;
+            Lookat_Z = Robot_Z;
+            headRotate = 90;
+         }
+         else if(robotRotate == 180)
+         {
+            Lookat_Z = -10.0 + Robot_Z;
+            Lookat_X = Robot_X;
+            headRotate = 180;
+         }
+         else if(robotRotate == 270)
+         {
+            Lookat_X = -10.0 + Robot_X;
+            Lookat_Z = Robot_Z;
+            headRotate = 270;
+         }
+         break;            
+      break;      
       }
       case GLUT_KEY_F3: 
       {
-         adjustHead(90);
-         CallBackResizeScene(Window_Width, Window_Height);
+         if(robotRotate == 0)
+         {     
+            Lookat_Z = 10.0 + Robot_Z;
+            Lookat_X = Robot_X;
+            headRotate = 0;
+         }
+         else if(robotRotate == 90)
+         {
+            Lookat_X = 10.0 + Robot_X;
+            Lookat_Z = Robot_Z;
+            headRotate = 90;
+         }
+         else if(robotRotate == 180)
+         {
+            Lookat_Z = -10.0 + Robot_Z;
+            Lookat_X = Robot_X;
+            headRotate = 180;
+         }
+         else if(robotRotate == 270)
+         {
+            Lookat_X = -10.0 + Robot_X;
+            Lookat_Z = Robot_Z;
+            headRotate = 270;
+         }
          break; 
+      break;
       }
    break;
    }
+   glutPostRedisplay();
+   CallBackResizeScene(Window_Width, Window_Height);
 }
 
 void CallBackSpecialKeyPressed(int key, int x, int y)
 {
+   int i;
    switch (key) {
-   case GLUT_KEY_F1:
-   {
-      adjustHead(0);
-      Lookat_X = 0 + Robot_X;
-      Lookat_Z = 10 + Robot_Z;
-      CallBackResizeScene(Window_Width, Window_Height);
+      case GLUT_KEY_F1:
+      {
+         Lookat_X = 0 + Robot_X;
+         Lookat_Z = 10 + Robot_Z;
+         break;      
+      }
+      case GLUT_KEY_F2: 
+      {
+         if(robotRotate == 0)
+         {     
+            Lookat_X = 10.0 + Robot_X;
+            Lookat_Z = Robot_Z;
+            headRotate = 90;
+         }
+         else if(robotRotate == 90)
+         {
+            Lookat_Z = -10.0 + Robot_Z;
+            Lookat_X = Robot_X;
+            headRotate = 180;
+         }
+         else if(robotRotate == 180)
+         {
+            Lookat_X = -10.0 + Robot_X;
+            Lookat_Z = Robot_Z;
+            headRotate = 270;
+         }
+         else if(robotRotate == 270)
+         {
+            Lookat_Z = 10.0 + Robot_Z;
+            Lookat_X = Robot_X;
+            headRotate = 0;
+         }
+         break;            
       break;      
-   }
-
-
-   case GLUT_KEY_F4: 
-   {
-      Lookat_X = 0 + Robot_X;
-      Lookat_Z = 10 + Robot_Z;
-      CallBackResizeScene(Window_Width, Window_Height);
-      break;
-   }
-     
-
-   case GLUT_KEY_F5:
-   { 
-      if(robotRotate == 0)
+      }
+      case GLUT_KEY_F3: 
       {
-         Lookat_X = -10 + Robot_X;
+         if(robotRotate == 0)
+         {     
+            Lookat_X = -10.0 + Robot_X;
+            Lookat_Z = Robot_Z;
+            headRotate = 270;
+         }
+         else if(robotRotate == 90)
+         {
+            Lookat_Z = 10.0 + Robot_Z;
+            Lookat_X = Robot_X;
+            headRotate = 0;
+         }
+         else if(robotRotate == 180)
+         {
+            Lookat_X = 10.0 + Robot_X;
+            Lookat_Z = Robot_Z;
+            headRotate = 90;
+         }
+         else if(robotRotate == 270)
+         {
+            Lookat_Z = -10.0 + Robot_Z;
+            Lookat_X = Robot_X;
+            headRotate = 180;
+         }
+         break; 
+      }
+      case GLUT_KEY_F4: 
+      {
+         Lookat_X = 0 + Robot_X;
          Lookat_Z = 10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
+         break;
       }
-      else if(robotRotate == 90)
+      case GLUT_KEY_F5:
+      { 
+         if(robotRotate == 0)
+         {
+            Lookat_X = -10 + Robot_X;
+            Lookat_Z = 10 + Robot_Z;
+         }
+         else if(robotRotate == 90)
+         {
+            Lookat_X = 10 + Robot_X;
+            Lookat_Z = 10 + Robot_Z;
+         }
+         else if(robotRotate == 180)
+         {
+            Lookat_X = 10 + Robot_X;
+            Lookat_Z = -10 + Robot_Z;
+         }
+         else if(robotRotate == 270)
+         {
+            Lookat_X = -10 + Robot_X;
+            Lookat_Z = -10 + Robot_Z;
+         }
+         break;
+      }    
+      case GLUT_KEY_F6: 
+      { 
+         if(robotRotate == 0)
+         {
+            Lookat_X = 10 + Robot_X;
+            Lookat_Z = 10 + Robot_Z;
+         }
+         else if(robotRotate == 90)
+         {
+            Lookat_X = 10 + Robot_X;
+            Lookat_Z = -10 + Robot_Z;
+         }
+         else if(robotRotate == 180)
+         {
+            Lookat_X = -10 + Robot_X;
+            Lookat_Z = -10 + Robot_Z;
+         }
+         else if(robotRotate == 270)
+         {
+            Lookat_X = -10 + Robot_X;
+            Lookat_Z = 10 + Robot_Z;
+         }
+         break;
+      }
+      case GLUT_KEY_F7: 
       {
-         Lookat_X = 10 + Robot_X;
-         Lookat_Z = 10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      else if(robotRotate == 180)
+         if(robotRotate == 0)
+         {
+            Lookat_X = 10 + Robot_X;
+            Lookat_Z = -10 + Robot_Z;
+         }
+         else if(robotRotate == 90)
+         {
+            Lookat_X = -10 + Robot_X;
+            Lookat_Z = -10 + Robot_Z;
+         }
+         else if(robotRotate == 180)
+         {
+            Lookat_X = -10 + Robot_X;
+            Lookat_Z = 10 + Robot_Z;
+         }
+         else if(robotRotate == 270)
+         {
+            Lookat_X = 10 + Robot_X;
+            Lookat_Z = 10 + Robot_Z;
+         }
+         break;
+      }      
+      case GLUT_KEY_F8: 
       {
-         Lookat_X = 10 + Robot_X;
-         Lookat_Z = -10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
+         if(robotRotate == 0)
+         {
+            Lookat_X = -10 + Robot_X;
+            Lookat_Z = -10 + Robot_Z;
+         }
+         else if(robotRotate == 90)
+         {
+            Lookat_X = -10 + Robot_X;
+            Lookat_Z = 10 + Robot_Z;
+         }
+         else if(robotRotate == 180)
+         {
+            Lookat_X = 10 + Robot_X;
+            Lookat_Z = 10 + Robot_Z;
+         }
+         else if(robotRotate == 270)
+         {
+            Lookat_X = 10 + Robot_X;
+            Lookat_Z = -10 + Robot_Z;
+         }
+         break;
       }
-      else if(robotRotate == 270)
-      {
-         Lookat_X = -10 + Robot_X;
-         Lookat_Z = -10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      break;
-   }
-   
-   case GLUT_KEY_F6: 
-   { 
-      if(robotRotate == 0)
-      {
-         Lookat_X = 10 + Robot_X;
-         Lookat_Z = 10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      else if(robotRotate == 90)
-      {
-         Lookat_X = 10 + Robot_X;
-         Lookat_Z = -10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      else if(robotRotate == 180)
-      {
-         Lookat_X = -10 + Robot_X;
-         Lookat_Z = -10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      else if(robotRotate == 270)
-      {
-         Lookat_X = -10 + Robot_X;
-         Lookat_Z = 10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      break;
-   }
-   
-
-
-   case GLUT_KEY_F7: 
-   {
-      if(robotRotate == 0)
-      {
-         Lookat_X = 10 + Robot_X;
-         Lookat_Z = -10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      else if(robotRotate == 90)
-      {
-         Lookat_X = -10 + Robot_X;
-         Lookat_Z = -10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      else if(robotRotate == 180)
-      {
-         Lookat_X = -10 + Robot_X;
-         Lookat_Z = 10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      else if(robotRotate == 270)
-      {
-         Lookat_X = 10 + Robot_X;
-         Lookat_Z = 10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      break;
-   }
-   
-   case GLUT_KEY_F8: 
-   {
-      if(robotRotate == 0)
-      {
-         Lookat_X = -10 + Robot_X;
-         Lookat_Z = -10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      else if(robotRotate == 90)
-      {
-         Lookat_X = -10 + Robot_X;
-         Lookat_Z = 10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      else if(robotRotate == 180)
-      {
-         Lookat_X = 10 + Robot_X;
-         Lookat_Z = 10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      else if(robotRotate == 270)
-      {
-         Lookat_X = 10 + Robot_X;
-         Lookat_Z = -10 + Robot_Z;
-         CallBackResizeScene(Window_Width, Window_Height);
-      }
-      break;
-   }
    break;
+   }
+   glutPostRedisplay();
+   CallBackResizeScene(Window_Width, Window_Height);
 }
-}
-
 
 int main(int argc, char **argv)
 {
