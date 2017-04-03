@@ -13,6 +13,8 @@
 #include <iostream>
 #include <cmath>
 #include <math.h>
+#include <cstdlib>
+#include <time.h>
 
 // Some global variables.
 // Window IDs, window width and height.
@@ -32,15 +34,36 @@ float streetSize = 10.0f;
 
 const float step = blockSize + streetSize;
 
-int numberOfBlocks = 20;
+const int numberOfBlocks = 4;
 
 float rectRotSpeed = 0.5f;
 float rectRot = 0.0f;
+const int numberOfBuildingsPerBlock = 4;
+const int maxBuildings = (numberOfBlocks * numberOfBlocks) * numberOfBuildingsPerBlock;
+
+bool buildingsGenerated = false;
+int buildingIndex = 0;
+
+enum BuildingType { RECT, CYL, NONE };
+
+struct BuildingInfo
+{
+   float xPosition;
+   float yPosition;
+   float zPosition;
+
+   int xzScalar;
+   int yScalar;
+   BuildingType type;
+};
+
+BuildingInfo buildings[maxBuildings];
 
 void init()
 {
-   startingX = -(((blockSize * ((numberOfBlocks/2.0f)-1)) + ((streetSize * (numberOfBlocks / 2.0f) - 2))) + (streetSize / 2));
-   startingZ = -(((blockSize * (numberOfBlocks/2.0f)) + ((streetSize * (numberOfBlocks / 2.0f) - 1))) + (streetSize / 2));
+   startingX = -(((blockSize * (numberOfBlocks/2.0f)) + (streetSize * ((numberOfBlocks / 2.0f) - 1))) + (blockSize / 2));
+   startingZ = -(((blockSize * (numberOfBlocks/2.0f)) + (streetSize * ((numberOfBlocks / 2.0f) - 1))) + (blockSize / 2));
+   srand(time(NULL));
 }
 
 void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
@@ -171,11 +194,89 @@ void drawAndPositionBlock()
 {
    glTranslatef(nextX, nextY, nextZ);
    drawBlock();
-
-   nextZ += step;
    
    glPopMatrix();
    glPushMatrix();
+}
+
+void randomlyGenerateBuildings()
+{
+   float xQuadrantValue = nextX - (blockSize/4);
+   float zQuadrantValue = nextZ - (blockSize/4);
+   BuildingInfo bInfo;
+
+   for(int i = 0; i < 2; ++i)
+   {
+      for(int j = 0; j < 2; ++j)
+      {
+         if(rand() % 10 == 0)
+         {
+            bInfo.type = NONE;
+            continue;
+         }
+
+         int maxBaseSize = blockSize / 4;
+         int minBaseSize = maxBaseSize - 2;
+         if(minBaseSize < 1)
+            minBaseSize = 1;
+
+         int maxHeight = 6;
+         int minHeight = maxHeight - 3;
+
+         int randomBase = rand() % maxBaseSize + minBaseSize;
+         int randomHeight = rand() % maxHeight + minHeight;
+         glTranslatef(xQuadrantValue, nextY, zQuadrantValue);
+         if(rand() % 2 == 0)
+         {
+            drawRectangularBuilding(randomBase, randomHeight);
+            bInfo.type = RECT;
+         }
+         else
+         {
+            drawCylindricBuilding(randomBase, randomHeight);
+            bInfo.type = CYL;
+         }
+
+         bInfo.xPosition = xQuadrantValue;
+         bInfo.yPosition = nextY;
+         bInfo.zPosition = zQuadrantValue;
+
+         bInfo.xzScalar = randomBase;
+         bInfo.yScalar = randomHeight;
+
+         glPopMatrix();
+         glPushMatrix();
+
+         xQuadrantValue += (blockSize / 2);
+
+         if(buildingIndex < maxBuildings)
+            buildings[buildingIndex++] = bInfo;
+      }
+
+      zQuadrantValue += (blockSize / 2);
+      xQuadrantValue = nextX - (blockSize/4);
+   }
+}
+
+void drawBuildings()
+{
+   for(int i = 0; i < maxBuildings; ++i)
+   {
+      BuildingInfo info = buildings[i];
+
+      if(info.type == NONE)
+         continue;
+      
+      glTranslatef(info.xPosition, info.yPosition, info.zPosition);
+
+      if(info.type == CYL)
+         drawCylindricBuilding(info.xzScalar, info.yScalar);
+      else if(info.type == RECT)
+         drawRectangularBuilding(info.xzScalar, info.yScalar);
+
+      glPopMatrix();
+      glPushMatrix();
+   }
 }
 
 /////////////////////////////////////////////////////////
@@ -199,14 +300,22 @@ void CallBackRenderScene(void)
    {
       for(int j = 0; j < numberOfBlocks; ++j)
       {
-	 drawAndPositionBlock();
+	      drawAndPositionBlock();
+         if(!buildingsGenerated)
+            randomlyGenerateBuildings();
+         nextZ += step;
       }
       
       nextX += step;
       nextZ = startingZ;
    }
 
-   glTranslatef(0.0f, 0.0f, 0.0f);
+   if(buildingsGenerated)
+      drawBuildings();
+
+   buildingsGenerated = true;
+
+/*   glTranslatef(0.0f, 0.0f, 0.0f);
    glRotatef(rectRot, 0.0f, 1.0f, 0.0f);
 
    drawRectangularBuilding(1, 10);
@@ -215,7 +324,7 @@ void CallBackRenderScene(void)
    glPushMatrix();
 
    glTranslatef(0.0f, 0.0f, 0.0f);
-   drawCylindricBuilding(1, 10);
+   drawCylindricBuilding(1, 10);*/
 
    glPopMatrix();
    glPushMatrix();
@@ -224,8 +333,6 @@ void CallBackRenderScene(void)
    glMatrixMode(GL_PROJECTION);
    
    glutSwapBuffers();
-
-   rectRot += rectRotSpeed;
 }
 
 ///////////////////////////////////////////////////////////////
