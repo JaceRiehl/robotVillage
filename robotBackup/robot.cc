@@ -25,8 +25,8 @@ double Robot_X = 0;
 double Robot_Y = 0; 
 double Robot_Z = 0; 
 double Lookat_X = 0.0;
-double Lookat_Y = 4.0;
-double Lookat_Z = 10.0;
+double Lookat_Y = 40.0;
+double Lookat_Z = 1.0;
 
 int robotRotate = 0; 
 int headRotate = 0.0;
@@ -34,7 +34,7 @@ int headRotate = 0.0;
 static bool paused = false;
 
 //Building Variables
-float blockSize = 5.0f;
+float blockSize = 10.0f;
 float nextX = 0.0f;
 float nextY = 0.0f;
 float nextZ = 0.0f;
@@ -42,11 +42,11 @@ float nextZ = 0.0f;
 float startingZ = 0.0f;
 float startingX = 0.0f;
 
-float streetSize = 10.0f;
+float streetSize = 20.0f;
 
 const float step = blockSize + streetSize;
 
-const int numberOfBlocks = 4;
+const int numberOfBlocks = 20;
 
 float rectRotSpeed = 0.5f;
 float rectRot = 0.0f;
@@ -249,7 +249,7 @@ void drawRectangularBuilding(int xzScalar, int yScalar)
    glBegin(GL_QUADS);
 
    glNormal3f(0.0f, 1.0f, 0.0f);
-   glColor4f(0.9f, 0.3f, 0.7f, 1.0f);
+   glColor4f(0.1, 0.7, 0.9, 1.0f);
    glVertex3f(-0.5f * xzScalar, 1.0f * yScalar, -0.5f * xzScalar);
    glVertex3f(-0.5f * xzScalar, 1.0f * yScalar, 0.5f * xzScalar);
    glVertex3f(0.5f * xzScalar, 1.0f * yScalar, 0.5f * xzScalar);
@@ -354,7 +354,11 @@ void drawBuildings()
       if(info.type == CYL)
          drawCylindricBuilding(info.xzScalar, info.yScalar);
       else if(info.type == RECT)
+      {
+         
          drawRectangularBuilding(info.xzScalar, info.yScalar);
+
+      }
 
       glPopMatrix();
       glPushMatrix();
@@ -794,7 +798,7 @@ void CallBackResizeScene(int Width, int Height)
   
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   glOrtho(-16, 16, -12, 12, -40, 40);
+   glOrtho(-48, 48, -36, 36, -120, 120);
    gluLookAt(Lookat_X, Lookat_Y, Lookat_Z,Robot_X,Robot_Y,Robot_Z,0,1,0);
    glMatrixMode(GL_MODELVIEW);
 
