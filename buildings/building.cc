@@ -72,6 +72,7 @@ void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
    
    //GLfloat radius = 0.8f; //radius
    GLfloat twicePi = 2.0f * M_PI;
+
    
    glBegin(GL_TRIANGLE_FAN);
       glVertex2f(x, y); // center of circle
@@ -89,11 +90,13 @@ void drawCylindricBuilding(int xzScalar, int yScalar)
    GLUquadric* building;
    building = gluNewQuadric();
 
+   glTranslatef(0.0f, yScalar, 0.0f);
    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
    
    glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
    gluCylinder(building, 1 * xzScalar, 1 * xzScalar, 1 * yScalar, 90, 60);
-   
+
+   glColor4f(0.9f, 0.9f, 0.0f, 1.0f);
    drawFilledCircle(0.0f, 0.0f, xzScalar * 1);
 }
 
@@ -103,7 +106,7 @@ void drawRectangularBuilding(int xzScalar, int yScalar)
    glBegin(GL_QUADS);
 
    glNormal3f(0.0f, -1.0f, 0.0f);
-   glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+   glColor4f(0.9f, 0.0f, 0.5f, 1.0f);
    glVertex3f(-0.5f * xzScalar, 0.0f, -0.5f * xzScalar);
    glVertex3f(-0.5f * xzScalar, 0.0f, 0.5f * xzScalar);
    glVertex3f(0.5f * xzScalar, 0.0f, 0.5f * xzScalar);
@@ -115,7 +118,7 @@ void drawRectangularBuilding(int xzScalar, int yScalar)
    glBegin(GL_QUADS);
 
    glNormal3f(-1.0f, 0.0f, 0.0f);
-   glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+   glColor4f(0.0f, 0.9f, 0.0f, 1.0f);
    glVertex3f(-0.5f * xzScalar, 1.0f * yScalar, -0.5f * xzScalar);
    glVertex3f(-0.5f * xzScalar, 0.0f, -0.5f * xzScalar);
    glVertex3f(-0.5f * xzScalar, 0.0f, 0.5f * xzScalar);
@@ -128,7 +131,7 @@ void drawRectangularBuilding(int xzScalar, int yScalar)
    glBegin(GL_QUADS);
 
    glNormal3f(0.0f, 0.0f, 1.0f);
-   glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
    glVertex3f(-0.5f * xzScalar, 1.0f * yScalar, 0.5f * xzScalar);
    glVertex3f(-0.5f * xzScalar, 0.0f, 0.5f * xzScalar);
    glVertex3f(0.5f * xzScalar, 0.0f, 0.5f * xzScalar);
@@ -141,7 +144,7 @@ void drawRectangularBuilding(int xzScalar, int yScalar)
    glBegin(GL_QUADS);
 
    glNormal3f(1.0f, 0.0f, 0.0f);
-   glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+   glColor4f(0.0f, 0.0f, 0.9f, 1.0f);
    glVertex3f(0.5f * xzScalar, 1.0f * yScalar, 0.5f * xzScalar);
    glVertex3f(0.5f * xzScalar, 0.0f, 0.5f * xzScalar);
    glVertex3f(0.5f * xzScalar, 0.0f, -0.5f * xzScalar);
@@ -154,7 +157,7 @@ void drawRectangularBuilding(int xzScalar, int yScalar)
    glBegin(GL_QUADS);
 
    glNormal3f(0.0f, 0.0f, -1.0f);
-   glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+   glColor4f(0.9f, 0.9f, 0.0f, 1.0f);
    glVertex3f(0.5f * xzScalar, 1.0f * yScalar, -0.5f * xzScalar);
    glVertex3f(0.5f * xzScalar, 0.0f, -0.5f * xzScalar);
    glVertex3f(-0.5f * xzScalar, 0.0f, -0.5f * xzScalar);
@@ -167,7 +170,7 @@ void drawRectangularBuilding(int xzScalar, int yScalar)
    glBegin(GL_QUADS);
 
    glNormal3f(0.0f, 1.0f, 0.0f);
-   glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+   glColor4f(0.9f, 0.3f, 0.7f, 1.0f);
    glVertex3f(-0.5f * xzScalar, 1.0f * yScalar, -0.5f * xzScalar);
    glVertex3f(-0.5f * xzScalar, 1.0f * yScalar, 0.5f * xzScalar);
    glVertex3f(0.5f * xzScalar, 1.0f * yScalar, 0.5f * xzScalar);
@@ -300,7 +303,7 @@ void CallBackRenderScene(void)
    {
       for(int j = 0; j < numberOfBlocks; ++j)
       {
-	      drawAndPositionBlock();
+	 drawAndPositionBlock();
          if(!buildingsGenerated)
             randomlyGenerateBuildings();
          nextZ += step;
@@ -314,17 +317,6 @@ void CallBackRenderScene(void)
       drawBuildings();
 
    buildingsGenerated = true;
-
-/*   glTranslatef(0.0f, 0.0f, 0.0f);
-   glRotatef(rectRot, 0.0f, 1.0f, 0.0f);
-
-   drawRectangularBuilding(1, 10);
-   
-   glPopMatrix();
-   glPushMatrix();
-
-   glTranslatef(0.0f, 0.0f, 0.0f);
-   drawCylindricBuilding(1, 10);*/
 
    glPopMatrix();
    glPushMatrix();
@@ -343,12 +335,12 @@ void CallBackResizeScene(int Width, int Height)
    // Let's not core dump, no matter what.
    if (Height == 0)
       Height = 1;
-
-   gluLookAt(0,0,5, 0, 0, 0,0,1,0);
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   glOrtho(-200, 200, -150, 150, -200, 200);
-
+   //gluPerspective(45.0f, (GLfloat)Width/(GLfloat)Height, 0.1f, 100.0f);
+   glOrtho(-16, 16, -12, 12, -40, 40);
+   gluLookAt(0,2,10, 0, 0, 0,0,1,0);
+   
    glMatrixMode(GL_MODELVIEW);
 
    Window_Width  = Width;
@@ -367,7 +359,7 @@ void MouseButtonPressed(int button, int state, int x, int y)
 {
    if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
    {
-      gluLookAt(-5, -5, 5, 0, 0, 0, 0, 1, 0);
+      gluLookAt(-10, 20, 5, 0, 0, 0, 0, 1, 0);
    }
 
    if(button == GLUT_RIGHT_BUTTON && state == GLUT_UP)
@@ -377,7 +369,7 @@ void MouseButtonPressed(int button, int state, int x, int y)
 
    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
    {
-      gluLookAt(0, 20, 0, 0, 0, 0, 0, 0, 1);
+      gluLookAt(-10, -20, 5, 0, 0, 0, 0, 1, 0);
    }
 
    if(button == GLUT_LEFT_BUTTON && state == GLUT_UP)
@@ -399,7 +391,10 @@ void MyInit(int Width, int Height)
 
    // Depth to clear depth buffer to; type of test.
    glClearDepth(1.0);
-   glDepthFunc(GL_LESS); 
+   glDepthFunc(GL_LESS);
+
+   glEnable(GL_CULL_FACE);
+   glEnable(GL_DEPTH_TEST);
 
    // Enables Smooth Color Shading; try GL_FLAT for (lack of) fun.
    glShadeModel(GL_SMOOTH);
@@ -453,7 +448,6 @@ int main(int argc, char **argv)
    printf("When you program, you can also use\n");
    printf("printf to do debugging.\n\n");
 
-   //glEnable(GL_DEPTH_TEST);
    // Above functions represents those you will do to set up your
    // application program.
    // Now pass off control to OpenGL.
