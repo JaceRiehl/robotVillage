@@ -39,11 +39,29 @@ static void PrintString(void *font, char *str)
       glutBitmapCharacter(font,*str++);
 }
 
+void renderStrokeFontString(
+      float x,
+      float y,
+      float z,
+      void *font,
+      char *string) {
+
+   char *c;
+   glPushMatrix();
+   glTranslatef(x, y,z);
+
+   for (c=string; *c != '\0'; c++) {
+      glutStrokeCharacter(font, *c);
+   }
+
+   glPopMatrix();
+}
+
 void update(int)
 {
 
    glutTimerFunc(10, update, 0);
-      glutPostRedisplay();
+   glutPostRedisplay();
 }
 
 void pushRobot()
@@ -380,7 +398,6 @@ void buildRobot()//*************************************************************
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
   
    glRotatef(headRotate, 0,1,0);
-   //glRotatef(robotRotate, 0,1,0); 
 
    glTranslatef(0,0,-1.1);
   
@@ -477,12 +494,13 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
    //Pause Menu
    if(paused)
    {
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       sprintf(buf,"%s", "Paused");
-      glRasterPos2i(362,576);
+      glRasterPos2i(362,312);
       PrintString(GLUT_BITMAP_TIMES_ROMAN_24, buf);
 
-      sprintf(buf,"%s", "Press 'r' again to resume");
-      glRasterPos2i(300,558);
+      sprintf(buf,"%s", "Press 'p' again to resume");
+      glRasterPos2i(300,288);
       PrintString(GLUT_BITMAP_HELVETICA_18, buf);    
    }
 
@@ -708,7 +726,7 @@ void keySpecialUp (int key, int x, int y)
                Lookat_X = -10.0 + Robot_X;
                Lookat_Z = Robot_Z;
                headRotate = 270;
-            }    
+            }            
          }
          break;
       }
@@ -740,7 +758,7 @@ void keySpecialUp (int key, int x, int y)
                Lookat_X = -10.0 + Robot_X;
                Lookat_Z = Robot_Z;
                headRotate = 270;
-            }            
+            }    
          }
          break;
       }
@@ -791,38 +809,6 @@ void CallBackSpecialKeyPressed(int key, int x, int y)
          {
             if(robotRotate == 0)
             {     
-               Lookat_X = 10.0 + Robot_X;
-               Lookat_Z = Robot_Z;
-               headRotate = 90;
-            }
-            else if(robotRotate == 90)
-            {
-               Lookat_Z = -10.0 + Robot_Z;
-               Lookat_X = Robot_X;
-               headRotate = 180;
-            }
-            else if(robotRotate == 180)
-            {
-               Lookat_X = -10.0 + Robot_X;
-               Lookat_Z = Robot_Z;
-               headRotate = 270;
-            }
-            else if(robotRotate == 270)
-            {
-               Lookat_Z = 10.0 + Robot_Z;
-               Lookat_X = Robot_X;
-               headRotate = 0;
-            }                       
-         }
-         break;     
-      }
-
-      case GLUT_KEY_F3: 
-      {
-         if(!paused)
-         {
-            if(robotRotate == 0)
-            {     
                Lookat_X = -10.0 + Robot_X;
                Lookat_Z = Robot_Z;
                headRotate = 270;
@@ -847,6 +833,38 @@ void CallBackSpecialKeyPressed(int key, int x, int y)
             }            
          }
          break; 
+      }
+
+      case GLUT_KEY_F3: 
+      {
+         if(!paused)
+         {
+            if(robotRotate == 0)
+            {     
+               Lookat_X = 10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 90;
+            }
+            else if(robotRotate == 90)
+            {
+               Lookat_Z = -10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 180;
+            }
+            else if(robotRotate == 180)
+            {
+               Lookat_X = -10.0 + Robot_X;
+               Lookat_Z = Robot_Z;
+               headRotate = 270;
+            }
+            else if(robotRotate == 270)
+            {
+               Lookat_Z = 10.0 + Robot_Z;
+               Lookat_X = Robot_X;
+               headRotate = 0;
+            }                       
+         }
+         break;     
       }
 
       case GLUT_KEY_F4: 
