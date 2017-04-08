@@ -178,6 +178,20 @@ void init()
    srand(time(NULL));
 }
 
+void drawStreetLines()
+{
+   glPushAttrib(GL_ENABLE_BIT);
+   glColor4f(0.9f, 0.9f, 0.0f, 1.0f);
+   glLineStipple(4,0xAAAA);
+   glEnable(GL_LINE_STIPPLE);
+   glBegin(GL_LINES);
+   glVertex3f(0,-2,-startingZ/2 +step);
+   glVertex3f(0,-2,startingZ -step);
+   glEnd();
+
+   glPopAttrib();
+}
+
 void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
    int i;
    int triangleAmount = 20; //# of triangles used to draw circle
@@ -312,7 +326,7 @@ void drawAndPositionBlock()
    glPushMatrix();
 }
 
-void randomlyGenerateBuildings()
+void randomlyGenerateBuildings(GLenum mode)
 {
    float xQuadrantValue = nextX - (blockSize/4);
    float zQuadrantValue = nextZ - (blockSize/4);
@@ -334,6 +348,8 @@ void randomlyGenerateBuildings()
          int randomBase = rand() % maxBaseSize + minBaseSize;
          int randomHeight = rand() % maxHeight + minHeight;
          glTranslatef(xQuadrantValue, nextY, zQuadrantValue);
+         if(mode == GL_SELECT)
+            glLoadName(i);
          if(rand() % 2 == 0)
          {
             drawRectangularBuilding(randomBase, randomHeight);
@@ -780,9 +796,9 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
    {
       for(int j = 0; j < numberOfBlocks; ++j)
       {
-    drawAndPositionBlock();
-         if(!buildingsGenerated)
-            randomlyGenerateBuildings();
+         drawAndPositionBlock();
+         if(!buildingsGenerated)         
+            randomlyGenerateBuildings(GL_RENDER);         
          nextZ += step;
       }
       
@@ -798,6 +814,8 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
    
 
    buildingsGenerated = true;
+
+   drawStreetLines();
 
    buildRobot(); 
 
@@ -835,10 +853,10 @@ void CallBackResizeScene(int Width, int Height)
 {
    if (Height == 0)
       Height = 1;
-   //glViewport(0, 0, Window_Width, Window_Height);
+   glViewport(0, 0, Window_Width, Window_Height);
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   glOrtho(-12, 12, -9, 9, -12, 12);
+   glOrtho(-192, 192, -144, 144, -192, 192);
    gluLookAt(Lookat_X, Lookat_Y, Lookat_Z,Robot_X,Robot_Y,Robot_Z,0,1,0);
    glMatrixMode(GL_MODELVIEW);
 
@@ -1042,7 +1060,7 @@ void processHits (GLint hits, GLuint buffer[])
 // Temporary mouse functions. Selecting building        *
 // Will be implemented later                            *
 //*******************************************************
-#define SIZE 512
+#define SIZE 2048
 void mouse(int button, int state, int x, int y)
 {
    GLuint selectBuf[SIZE];
@@ -1066,8 +1084,8 @@ void mouse(int button, int state, int x, int y)
       glLoadIdentity();
 
       /*  create 5x5 pixel picking region near cursor location */
-      gluPickMatrix((GLdouble) x, (GLdouble) (viewport[3] - y), 5.0, 5.0, viewport);
-      gluOrtho2D(-5, 5, -5, 5);
+      gluPickMatrix((GLdouble) x, (GLdouble) (viewport[3] - y), 2.0, 2.0, viewport);
+      gluOrtho2D(-12, 12, -9, 9);
       drawBuildings(GL_SELECT);
 
 

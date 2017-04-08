@@ -2,7 +2,7 @@ INCLUDE = -I/usr/include/
 LIBDIR  = -L/usr/lib/
 
 COMPILERFLAGS = -Wall
-CC = g++11
+CC = g++
 CFLAGS = $(COMPILERFLAGS) $(INCLUDE)
 LIBRARIES = -lX11 -lXi -lXmu -lglut -lGL -lGLU -lm
 
