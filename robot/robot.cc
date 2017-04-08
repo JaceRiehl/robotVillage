@@ -1,6 +1,6 @@
 #define PROGRAM_TITLE "Robot Rampage Reloaded"
 #define Z_dist 1.0
-#define SIZE 512
+
 
 #include <stdlib.h> 
 #include <stdio.h>    
@@ -49,12 +49,12 @@ float streetSize = 10.0f;
 
 const float step = blockSize + streetSize;
 
-const int numberOfBlocks = 4;
+const int numberOfBlocks = 20;
 
 float rectRotSpeed = 0.5f;
 float rectRot = 0.0f;
-const int numberOfBuildingsPerBlock = 20;
-const int maxBuildings = (numberOfBlocks * numberOfBlocks) * numberOfBuildingsPerBlock;
+const int numberOfBuildingsPerBlock = 4;
+const int maxBuildings = ((numberOfBlocks * numberOfBlocks) * numberOfBuildingsPerBlock);
 
 bool buildingsGenerated = false;
 int buildingIndex = 0;
@@ -114,16 +114,19 @@ void pushRobot()
       Lookat_Z -= 1;
       Robot_Z -= 1; 
    }
+
    else if((robotRotate) == 90)
    {
       Lookat_X -= 1;
       Robot_X -= 1;
    }
+
    else if((robotRotate) == 180)
    {
       Lookat_Z += 1;
       Robot_Z += 1; 
    }
+
    else if((robotRotate) == 270)
    {
       Lookat_X += 1;
@@ -138,16 +141,19 @@ void pullRobot()
       Lookat_Z += 1;
       Robot_Z += 1; 
    }
+
    else if((robotRotate) == 90)
    {
       Lookat_X += 1;
       Robot_X += 1;
    }
+
    else if((robotRotate) == 180)
    {
       Lookat_Z -= 1;
       Robot_Z -= 1; 
    }
+
    else if((robotRotate) == 270)
    {
       Lookat_X -= 1;
@@ -158,13 +164,11 @@ void pullRobot()
 void robRot(int r)
 {
    robotRotate = (r + robotRotate) % 360; 
-
 }
 
 void adjustHead(int r)
 {
    headRotate = (r + headRotate) % 360; 
-
 }
 
 void init()
@@ -364,11 +368,12 @@ void randomlyGenerateBuildings()
 
 void drawBuildings(GLenum mode)
 {
-   for(int i = 0; i < maxBuildings; ++i)
+
+   for(int i = 0; i < maxBuildings; i++)
    {
       BuildingInfo info = buildings[i];
 
-      glTranslatef(info.xPosition, info.yPosition, info.zPosition);
+      glTranslatef(info.xPosition, info.yPosition, info.zPosition);  
 
       if(mode == GL_SELECT)
          glLoadName(i);
@@ -376,7 +381,7 @@ void drawBuildings(GLenum mode)
          drawCylindricBuilding(info.xzScalar, info.yScalar);
       else if(info.type == RECT)
          drawRectangularBuilding(info.xzScalar, info.yScalar);
-
+      
       glPopMatrix();
       glPushMatrix();
    }
@@ -594,7 +599,7 @@ void buildRobot()//*************************************************************
    glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
 
-   usleep(10000);
+   usleep(100000);
    glTranslatef(0.0f,5.5f,0.0f);
    glRotatef(Y_Rot,0.0f,1.0f,0.0f);
    glTranslatef(0.0f,-5.5f,0.0f);
@@ -616,8 +621,9 @@ void buildRobot()//*************************************************************
    glTranslatef(-Robot_X, -Robot_Y, -Robot_Z);
    glTranslatef(Robot_X, Robot_Y, Robot_Z);
 
-   usleep(10000);
+  
    glTranslatef(0.0f,6.0f, 0.0f);
+    usleep(10000);
    glRotatef(Y_Rot,0.0f,1.0f,0.0f);
    glTranslatef(0.0f,-6.0f, 0.0f);
 
@@ -785,7 +791,11 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
    }
 
    if(buildingsGenerated)
+   {
       drawBuildings(GL_RENDER);
+      glFlush();
+   }
+   
 
    buildingsGenerated = true;
 
@@ -821,17 +831,14 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
 
 
 
-
-
-
 void CallBackResizeScene(int Width, int Height)
 {
    if (Height == 0)
       Height = 1;
-  
+   //glViewport(0, 0, Window_Width, Window_Height);
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   glOrtho(-12, 12, -9, 9, -120, 120);
+   glOrtho(-12, 12, -9, 9, -12, 12);
    gluLookAt(Lookat_X, Lookat_Y, Lookat_Z,Robot_X,Robot_Y,Robot_Z,0,1,0);
    glMatrixMode(GL_MODELVIEW);
 
@@ -1005,27 +1012,37 @@ void myCBKey(unsigned char key, int x, int y)
 
 void processHits (GLint hits, GLuint buffer[])
 {
-   int i, j;
-   GLint names, *ptr;
+   unsigned int i, j;
+   GLuint names, *ptr, minZ, *ptrNames, numberOfNames;
 
    printf ("hits = %d\n", hits);
-   ptr = (GLint *) buffer; 
-   for (i = 0; i < hits; i++) {
+   ptr = (GLuint *) buffer;
+   minZ = 0xffffffff;
+   for (i = 0; i < hits; i++) {  
       names = *ptr;
-      ptr+=3;
-      for (j = 0; j < names; j++) {
-         if(*ptr==1) printf ("red rectangle\n");
-         else printf ("blue rectangle\n");
-         ptr++;
-      }
-      printf ("\n");
+     ptr++;
+     if (*ptr < minZ) {
+        numberOfNames = names;
+        minZ = *ptr;
+        ptrNames = ptr+2;
+     }
+     
+     ptr += names+2;
    }
+
+  printf ("The closest hit names are:");
+  ptr = ptrNames;
+  for (j = 0; j < numberOfNames; j++,ptr++) {
+     printf ("%d ", *ptr);
+  }
+  printf ("\n");
 }
 
 //*******************************************************
 // Temporary mouse functions. Selecting building        *
 // Will be implemented later                            *
 //*******************************************************
+#define SIZE 512
 void mouse(int button, int state, int x, int y)
 {
    GLuint selectBuf[SIZE];
@@ -1034,30 +1051,32 @@ void mouse(int button, int state, int x, int y)
 
    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) 
    {
-      glGetIntegerv (GL_VIEWPORT, viewport);
+      printf("x = %i ", x);
+      printf("y = %i\n", y);
+      glGetIntegerv(GL_VIEWPORT, viewport);
 
-      glSelectBuffer (SIZE, selectBuf);
+      glSelectBuffer(SIZE, selectBuf);
       glRenderMode(GL_SELECT);
 
       glInitNames();
       glPushName(0);
+   
+      glMatrixMode(GL_PROJECTION);
+      glPushMatrix();
+      glLoadIdentity();
 
-      glMatrixMode (GL_PROJECTION);
-      glPushMatrix ();
-      glLoadIdentity ();
       /*  create 5x5 pixel picking region near cursor location */
-      gluPickMatrix ((GLdouble) x, (GLdouble) (viewport[3] - y), 
-                     5.0, 5.0, viewport);
-      gluOrtho2D (-2.0, 2.0, -2.0, 2.0);
+      gluPickMatrix((GLdouble) x, (GLdouble) (viewport[3] - y), 5.0, 5.0, viewport);
+      gluOrtho2D(-5, 5, -5, 5);
       drawBuildings(GL_SELECT);
 
 
-      glMatrixMode (GL_PROJECTION);
-      glPopMatrix ();
-      glFlush ();
+      glMatrixMode(GL_PROJECTION);
+      glPopMatrix();
+      glFlush();
 
-      hits = glRenderMode (GL_RENDER);
-      processHits (hits, selectBuf);
+      hits = glRenderMode(GL_RENDER);
+      processHits(hits, selectBuf);
 
       glutPostRedisplay();
    }
