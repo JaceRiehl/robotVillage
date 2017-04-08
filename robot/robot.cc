@@ -997,7 +997,7 @@ void myCBKey(unsigned char key, int x, int y)
          if(!paused)
          {
             Lookat_X = 0;
-            Lookat_Z = 10;
+            Lookat_Z = 1;
             Robot_X = 0;
             Robot_Z = 0;
             robotRotate = 0;
