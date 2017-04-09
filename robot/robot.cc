@@ -173,23 +173,51 @@ void adjustHead(int r)
 
 void init()
 {
-   startingX = -(((blockSize * (numberOfBlocks/1.0f)) + (streetSize * ((numberOfBlocks / 4.0f) - 1))) + (blockSize / 1.0f));
-   startingZ = -(((blockSize * (numberOfBlocks/1.0f)) + (streetSize * ((numberOfBlocks / 4.0f) - 1))) + (blockSize / 1.0f));
+   startingX = -(((blockSize * (numberOfBlocks/2.0f)) + (streetSize * ((numberOfBlocks / 2.0f) - 1))) + (blockSize / 1.0f))+10;
+   startingZ = -(((blockSize * (numberOfBlocks/2.0f)) + (streetSize * ((numberOfBlocks / 2.0f) - 1))) + (blockSize / 1.0f))+10;
    srand(time(NULL));
 }
 
 void drawStreetLines()
 {
-   glPushAttrib(GL_ENABLE_BIT);
+   glPushMatrix();
    glColor4f(0.9f, 0.9f, 0.0f, 1.0f);
-   glLineStipple(4,0xAAAA);
+   glLineWidth(4.0f);
+   glLineStipple(16,0xAAAA);
    glEnable(GL_LINE_STIPPLE);
+
    glBegin(GL_LINES);
-   glVertex3f(0,-2,-startingZ/2 +step);
-   glVertex3f(0,-2,startingZ -step);
+   glVertex3f(0,-2.1, 15);
+   glVertex3f(0,-2.1, -15);
+   glVertex3f(15,-2.1, 0);
+   glVertex3f(-15,-2.1, 0);
    glEnd();
 
-   glPopAttrib();
+   glPopMatrix();
+
+   glColor4f(0.6f, 0.6f, 0.6f, 1.0f);
+   glBegin(GL_POLYGON);
+   glVertex3f(-5.0f, -2.2f, -15.0f);
+   glVertex3f(-5.0f, -2.2f, 15.0f);
+   glVertex3f(5.0f, -2.2f, 15.0f);
+   glVertex3f(5.0f, -2.2f, -15.0f);
+   glEnd();
+
+   glBegin(GL_POLYGON);
+   glVertex3f(-15.0f, -2.2f, -5.0f);
+   glVertex3f(-15.0f, -2.2f, 5.0f);
+   glVertex3f(-5.0f, -2.2f, 5.0f);
+   glVertex3f(-5.0f, -2.2f, -5.0f);
+   glEnd();
+
+   glBegin(GL_POLYGON);
+   glVertex3f(5.0f, -2.2f, -5.0f);
+   glVertex3f(5.0f, -2.2f, 5.0f);
+   glVertex3f(15.0f, -2.2f, 5.0f);
+   glVertex3f(15.0f, -2.2f, -5.0f);
+   glEnd();
+  
+
 }
 
 void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius){
@@ -214,7 +242,7 @@ void drawCylindricBuilding(int xzScalar, int yScalar)
    GLUquadric* building;
    building = gluNewQuadric();
 
-   glTranslatef(0.0f, yScalar, 0.0f);
+   glTranslatef(0.0f, yScalar - 2.2f, 0.0f);
    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
    
    glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
@@ -319,7 +347,14 @@ void drawBlock()
 
 void drawAndPositionBlock()
 {
-   glTranslatef(nextX, nextY, nextZ);
+    glTranslatef(nextX + 10, nextY, nextZ + 10);
+   if(nextX < (numberOfBlocks * 10) - 20 && nextZ < (numberOfBlocks * 10) - 20)
+      drawStreetLines();
+   glPopMatrix();
+   glPushMatrix();
+
+   glTranslatef(nextX, nextY -2.2, nextZ);
+     
    drawBlock();
    
    glPopMatrix();
@@ -342,12 +377,12 @@ void randomlyGenerateBuildings(GLenum mode)
          if(minBaseSize < 1)
             minBaseSize = 1;
 
-         int maxHeight = 6;
+         int maxHeight = 9;
          int minHeight = maxHeight - 3;
 
          int randomBase = rand() % maxBaseSize + minBaseSize;
          int randomHeight = rand() % maxHeight + minHeight;
-         glTranslatef(xQuadrantValue, nextY, zQuadrantValue);
+         glTranslatef(xQuadrantValue, nextY-2.2, zQuadrantValue);
          if(mode == GL_SELECT)
             glLoadName(i);
          if(rand() % 2 == 0)
@@ -389,7 +424,7 @@ void drawBuildings(GLenum mode)
    {
       BuildingInfo info = buildings[i];
 
-      glTranslatef(info.xPosition, info.yPosition, info.zPosition);  
+      glTranslatef(info.xPosition, info.yPosition-2.2, info.zPosition);  
 
       if(mode == GL_SELECT)
          glLoadName(i);
@@ -790,7 +825,7 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
    glPushMatrix();
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+ 
 
    for(int i = 0; i < numberOfBlocks; ++i)
    {
@@ -815,9 +850,7 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
 
    buildingsGenerated = true;
 
-   drawStreetLines();
-
-   buildRobot(); 
+   buildRobot();
 
    glLoadIdentity();
    glMatrixMode(GL_PROJECTION);
@@ -853,10 +886,10 @@ void CallBackResizeScene(int Width, int Height)
 {
    if (Height == 0)
       Height = 1;
-   glViewport(0, 0, Window_Width, Window_Height);
+   //glViewport(0, 0, Window_Width, Window_Height);
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   glOrtho(-192, 192, -144, 144, -192, 192);
+   glOrtho(-12, 12, -9, 9, -120, 120);
    gluLookAt(Lookat_X, Lookat_Y, Lookat_Z,Robot_X,Robot_Y,Robot_Z,0,1,0);
    glMatrixMode(GL_MODELVIEW);
 
@@ -972,8 +1005,12 @@ void myCBKey(unsigned char key, int x, int y)
       {
          if(!paused)
          {
-            pushRobot();
-            CallBackResizeScene(Window_Width, Window_Height);
+            if (Robot_Z < (numberOfBlocks * 10) - 5 && Robot_Z > -(numberOfBlocks * 10) + 5 && Robot_X < (numberOfBlocks * 10) - 5 && Robot_X > -(numberOfBlocks * 10) + 5)
+            {
+               pushRobot();
+               CallBackResizeScene(Window_Width, Window_Height);               
+            }
+
          }
 
       }
@@ -984,8 +1021,11 @@ void myCBKey(unsigned char key, int x, int y)
       {
          if(!paused)
          {
-            pullRobot();
-            CallBackResizeScene(Window_Width, Window_Height);
+            if (Robot_Z < (numberOfBlocks * 10) - 5 && Robot_Z > -(numberOfBlocks * 10) + 5 && Robot_X < (numberOfBlocks * 10) - 5 && Robot_X > -(numberOfBlocks * 10) + 5)
+            {
+               pullRobot();
+               CallBackResizeScene(Window_Width, Window_Height);               
+            }
          }
 
       }
@@ -1418,7 +1458,7 @@ void CallBackSpecialKeyPressed(int key, int x, int y)
    break;
    }
    glutPostRedisplay();
-   CallBackResizeScene(Window_Width, Window_Height);
+   //CallBackResizeScene(Window_Width, Window_Height);
 }
 
 int main(int argc, char **argv)
