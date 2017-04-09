@@ -1458,7 +1458,7 @@ void CallBackSpecialKeyPressed(int key, int x, int y)
    break;
    }
    glutPostRedisplay();
-   //CallBackResizeScene(Window_Width, Window_Height);
+   CallBackResizeScene(Window_Width, Window_Height);
 }
 
 int main(int argc, char **argv)
