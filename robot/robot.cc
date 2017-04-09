@@ -15,6 +15,15 @@
 #include <iostream>
 #include <time.h>
 
+GLfloat mat_specular2[] = {0.628281, 0.555802, 0.366065};
+GLfloat mat_shininess2[] = { 0.4 * 128};
+GLfloat mat_diffuse2[] = {1.0,   1.0,  1.0};
+GLfloat mat_ambient2[] = {0.5,   0.5 ,  0.5, 1.0};
+GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+GLfloat mat_shininess[] = { 50.0 };
+GLfloat light_position[] = { 0.0, 10.0, 10.0, 0.0 };
+GLfloat light_position2[] = { 0.0, -3.0, -0.0, 0.0 };
+
 // Window IDs, window width and height.
 int Window_ID;
 int Window_Width = 800;
@@ -35,6 +44,7 @@ int headRotate = 0.0;
  
 static bool paused = false;
 static bool Specs = false;
+static bool turnOnLight = false; 
 
 //Building Variables
 float blockSize = 10.0f;
@@ -74,6 +84,71 @@ struct BuildingInfo
 
 BuildingInfo buildings[maxBuildings];
 
+void lighting()
+{
+
+   if(robotRotate == 90)
+   {
+   light_position[0] = 10.0;
+   light_position[1] = 10.0;
+   light_position[2] = 0.0;
+   light_position[3] = 0.0;
+   }
+
+   else if(robotRotate == 180)
+       {
+   light_position[0] = 0.0;
+   light_position[1] = 10.0;
+   light_position[2] = -10.0;
+   light_position[3] = 0.0;
+   }
+
+   else if(robotRotate == 270)
+       {
+   light_position[0] = -10.0;
+   light_position[1] = 10.0;
+   light_position[2] = 0.0;
+   light_position[3] = 0.0;
+   }
+  
+   else
+   {
+   light_position[0] = 0.0;
+   light_position[1] = 10.0;
+   light_position[2] = 10.0;
+   light_position[3] = 0.0;
+   } 
+   
+ 
+
+  //SECOND LIGHT
+   glClearColor (0.0, 0.0, 0.0, 0.0);
+   glShadeModel (GL_SMOOTH);
+   glLightfv(GL_LIGHT1, GL_AMBIENT, mat_ambient2);
+   glLightfv(GL_LIGHT1, GL_SHININESS, mat_shininess2);
+   glLightfv(GL_LIGHT1, GL_DIFFUSE, mat_diffuse2);
+   glLightfv(GL_LIGHT1, GL_POSITION, light_position2);
+
+   glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT1);
+
+  //FIRST LIGHT
+
+   glClearColor (0.0, 0.0, 0.0, 0.0);
+   glShadeModel (GL_SMOOTH);
+   glLightfv(GL_LIGHT0, GL_SPECULAR, mat_specular);
+   glLightfv(GL_LIGHT0, GL_SHININESS, mat_shininess);
+   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+   if(turnOnLight)
+      glEnable(GL_LIGHT0); 
+   else 
+      glDisable(GL_LIGHT0); 
+
+   glEnable(GL_COLOR_MATERIAL);
+   glEnable(GL_LIGHTING);
+   glEnable(GL_DEPTH_TEST);
+   
+}
 static void PrintString(void *font, char *str)
 {
    int i,len=strlen(str);
@@ -245,10 +320,11 @@ void drawCylindricBuilding(int xzScalar, int yScalar)
    glTranslatef(0.0f, yScalar - 2.2f, 0.0f);
    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
    
-   glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+   glColor4f(0.9f, 0.1f, 0.2f, 1.0f);
    gluCylinder(building, 1 * xzScalar, 1 * xzScalar, 1 * yScalar, 90, 60);
 
    glColor4f(0.9f, 0.9f, 0.0f, 1.0f);
+   glNormal3f(0,1,0);
    drawFilledCircle(0.0f, 0.0f, xzScalar * 1);
 }
 
@@ -826,7 +902,7 @@ void CallBackRenderScene(void)//((((((((((((((((((((((((((((((((((((((((((((((((
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
-
+   lighting();
    for(int i = 0; i < numberOfBlocks; ++i)
    {
       for(int j = 0; j < numberOfBlocks; ++j)
@@ -1455,6 +1531,12 @@ void CallBackSpecialKeyPressed(int key, int x, int y)
          }
          break;
       }
+
+      case GLUT_KEY_F9:
+      {
+      turnOnLight = !turnOnLight;
+      }
+
    break;
    }
    glutPostRedisplay();
