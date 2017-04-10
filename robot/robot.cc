@@ -15,6 +15,8 @@
 #include <iostream>
 #include <time.h>
 
+
+//Lighting
 GLfloat mat_specular2[] = {0.628281, 0.555802, 0.366065};
 GLfloat mat_shininess2[] = { 0.4 * 128};
 GLfloat mat_diffuse2[] = {1.0,   1.0,  1.0};
@@ -24,12 +26,17 @@ GLfloat mat_shininess[] = { 50.0 };
 GLfloat light_position[] = { 0.0, 10.0, 10.0, 0.0 };
 GLfloat light_position2[] = { 0.0, -3.0, -0.0, 0.0 };
 
+
 // Window IDs, window width and height.
 int Window_ID;
 int Window_Width = 800;
 int Window_Height = 600;
 
+//detecting hits
+GLint hit; 
+
 // The cubes rotation 
+GLuint save, i; 
 double Y_Rot   = 0.0f;  
 double Y_Speed = -30.0f;
 int Robot_X = 0; 
@@ -79,6 +86,7 @@ struct BuildingInfo
 
    int xzScalar;
    int yScalar;
+   bool destroyed; 
    BuildingType type;
 };
 
@@ -495,11 +503,15 @@ void randomlyGenerateBuildings(GLenum mode)
 
 void drawBuildings(GLenum mode)
 {
-
-   for(int i = 0; i < maxBuildings; i++)
+ 
+   for(i = 0; i < maxBuildings; i++)
    {
+      
       BuildingInfo info = buildings[i];
-
+      
+      
+      if(i != save && info.destroyed != true)
+      {
       glTranslatef(info.xPosition, info.yPosition-2.2, info.zPosition);  
 
       if(mode == GL_SELECT)
@@ -511,6 +523,13 @@ void drawBuildings(GLenum mode)
       
       glPopMatrix();
       glPushMatrix();
+      }
+
+      else if(buildings[i].destroyed != true)
+         buildings[i].destroyed = true;
+ 
+   
+   
    }
 }
 
@@ -1148,8 +1167,11 @@ void processHits (GLint hits, GLuint buffer[])
 {
    unsigned int i, j;
    GLuint names, *ptr, minZ, *ptrNames, numberOfNames;
-
+   hit = hits; 
+   if(hits != 1)
    printf ("hits = %d\n", hits);
+   else if(hits == 1)
+       printf ("hits = %d\n", hits-1);
    ptr = (GLuint *) buffer;
    minZ = 0xffffffff;
    for (i = 0; i < hits; i++) {  
@@ -1167,7 +1189,12 @@ void processHits (GLint hits, GLuint buffer[])
   printf ("The closest hit names are:");
   ptr = ptrNames;
   for (j = 0; j < numberOfNames; j++,ptr++) {
+     if(hits != 1)
+     {
      printf ("%d ", *ptr);
+     save = *ptr;
+   }
+
   }
   printf ("\n");
 }
@@ -1185,8 +1212,6 @@ void mouse(int button, int state, int x, int y)
 
    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) 
    {
-      printf("x = %i ", x);
-      printf("y = %i\n", y);
       glGetIntegerv(GL_VIEWPORT, viewport);
 
       glSelectBuffer(SIZE, selectBuf);
